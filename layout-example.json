@@ -1,0 +1,34 @@
+{
+  "_comment": "Add this page + nav entry to your existing Supervisor Desktop layout JSON.",
+
+  "nav": [
+    {
+      "label": "Skilling",
+      "icon": "icon-supervisor-1",
+      "navigateTo": "skilling-page",
+      "align": "top"
+    }
+  ],
+
+  "pages": [
+    {
+      "id": "skilling-page",
+      "widgets": {
+        "skilling": {
+          "comp": "supervisor-skilling-widget",
+          "script": "https://kadammmmm.github.io/wxcc-supervisor-skilling/index.js",
+          "properties": {
+            "style": "width:100%;height:100%;overflow:hidden"
+          }
+        }
+      },
+      "layout": {
+        "areas": [["skilling"]],
+        "size": {
+          "cols": [1],
+          "rows": [1]
+        }
+      }
+    }
+  ]
+}
