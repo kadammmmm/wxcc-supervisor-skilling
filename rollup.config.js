@@ -1,4 +1,5 @@
 import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 import terser from '@rollup/plugin-terser';
 
 export default {
@@ -9,10 +10,11 @@ export default {
     name: 'SupervisorSkilling',
     sourcemap: true
   },
-  // @wxcc-desktop/sdk is UMD-only and provided by the WxCC runtime as window.Desktop
-  external: ['@wxcc-desktop/sdk'],
   plugins: [
-    resolve(),
+    // browser:true picks browser-targeted builds and handles `window` references
+    resolve({ browser: true, preferBuiltins: false }),
+    // commonjs converts the SDK's UMD bundle so rollup can read its exports
+    commonjs({ transformMixedEsModules: true }),
     terser()
   ]
 };
