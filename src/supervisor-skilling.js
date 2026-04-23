@@ -722,6 +722,70 @@ class SupervisorSkillingWidget extends LitElement {
       box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     }
 
+    /* ── Columns panel ── */
+    .columns-panel-bar {
+      background: #faf5ff;
+      border-bottom: 1px solid #DDD6FE;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .columns-panel-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5B21B6;
+      white-space: nowrap;
+    }
+
+    .columns-check-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: #374151;
+      cursor: pointer;
+      background: #fff;
+      border: 1px solid #DDD6FE;
+      border-radius: 5px;
+      padding: 3px 8px;
+      user-select: none;
+      transition: background 0.1s;
+    }
+
+    .columns-check-row:hover { background: #EDE9FE; }
+
+    .columns-check-row input[type="checkbox"] {
+      width: 12px;
+      height: 12px;
+      accent-color: #7C3AED;
+      margin: 0;
+    }
+
+    .columns-check-row.col-hidden {
+      opacity: 0.5;
+      background: #f3f4f6;
+      border-color: #e5e7eb;
+      text-decoration: line-through;
+    }
+
+    .columns-action-btn {
+      background: none;
+      border: 1px solid #DDD6FE;
+      border-radius: 5px;
+      color: #7C3AED;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .columns-action-btn:hover { background: #EDE9FE; }
+
     /* ── Matrix view ── */
     .matrix-wrap {
       flex: 1;
@@ -986,10 +1050,12 @@ class SupervisorSkillingWidget extends LitElement {
     _token:           { state: true },
     _savingAgents:    { state: true },
     _apiBaseUrl:      { state: true },
-    _viewMode:        { state: true },
-    _matrixSortSkill: { state: true },
-    _matrixSortDir:   { state: true },
-    _coverageGaps:    { state: true },
+    _viewMode:          { state: true },
+    _matrixSortSkill:   { state: true },
+    _matrixSortDir:     { state: true },
+    _hiddenSkillIds:    { state: true },
+    _showColumnsPanel:  { state: true },
+    _coverageGaps:      { state: true },
     _gapsDismissed:   { state: true },
   };
 
@@ -1019,9 +1085,11 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingAgents   = new Set();
     this._apiBaseUrl     = 'https://api.wxcc-us1.cisco.com';
     this._viewMode       = 'table';
-    this._matrixSortSkill = null;
-    this._matrixSortDir   = 'desc';
-    this._coverageGaps   = [];
+    this._matrixSortSkill  = null;
+    this._matrixSortDir    = 'desc';
+    this._hiddenSkillIds   = new Set();
+    this._showColumnsPanel = false;
+    this._coverageGaps     = [];
     this._gapsDismissed  = false;
     this._sdkLogger      = null;
     this._toastTimer     = null;
@@ -1040,7 +1108,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.7.0 — initSDK start');
+    console.log('[skilling] v1.7.1 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1559,9 +1627,10 @@ class SupervisorSkillingWidget extends LitElement {
       agentSkillMaps.set(agent.id, map);
     }
 
-    const skillIds = [...skillIdSet].sort((a, b) =>
+    const allSkillIds = [...skillIdSet].sort((a, b) =>
       this._skillName(a).localeCompare(this._skillName(b))
     );
+    const skillIds = allSkillIds.filter(id => !this._hiddenSkillIds.has(id));
 
     // Per-skill: agent count + summary stats for the footer row
     const skillCounts  = new Map();
@@ -1602,7 +1671,7 @@ class SupervisorSkillingWidget extends LitElement {
       });
     }
 
-    return { agents: sortedAgents, skillIds, agentSkillMaps, skillCounts, skillSummary };
+    return { agents: sortedAgents, skillIds, allSkillIds, agentSkillMaps, skillCounts, skillSummary };
   }
 
   _renderMatrixCell(entry) {
@@ -1648,6 +1717,12 @@ class SupervisorSkillingWidget extends LitElement {
     }
   }
 
+  _toggleSkillColumn(skillId, hide) {
+    const next = new Set(this._hiddenSkillIds);
+    hide ? next.add(skillId) : next.delete(skillId);
+    this._hiddenSkillIds = next;
+  }
+
   // ─── Render ──────────────────────────────────────────────────────────────
 
   render() {
@@ -1672,7 +1747,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.0</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.1</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
@@ -1721,8 +1796,9 @@ class SupervisorSkillingWidget extends LitElement {
     return html`
       ${this._renderControls()}
       ${this._renderCoverageWarning()}
+      ${this._viewMode === 'matrix' ? this._renderColumnsPanel() : ''}
       ${anySelected && this._viewMode === 'table' ? this._renderBulkBar() : ''}
-      ${this._viewMode === 'matrix' ? this._renderMatrix(agents) : html`
+      ${this._viewMode === 'matrix' ? this._renderMatrix() : html`
       <div class="table-container">
         ${agents.length === 0
           ? html`
@@ -1780,7 +1856,39 @@ class SupervisorSkillingWidget extends LitElement {
     `;
   }
 
-  _renderMatrix(agents) {
+  _renderColumnsPanel() {
+    if (!this._showColumnsPanel) return '';
+    const allSkillIds = [...new Set(
+      this._filteredAgents.flatMap(a => this._profileSkills(a.skillProfileId).map(s => this._skillDefId(s)))
+    )].sort((a, b) => this._skillName(a).localeCompare(this._skillName(b)));
+
+    if (!allSkillIds.length) return '';
+
+    return html`
+      <div class="columns-panel-bar">
+        <span class="columns-panel-label">Show / Hide Columns</span>
+        <button class="columns-action-btn"
+          @click=${() => (this._hiddenSkillIds = new Set())}>Show all</button>
+        <button class="columns-action-btn"
+          @click=${() => (this._hiddenSkillIds = new Set(allSkillIds))}>Hide all</button>
+        ${allSkillIds.map(id => {
+          const hidden = this._hiddenSkillIds.has(id);
+          return html`
+            <label class="columns-check-row ${hidden ? 'col-hidden' : ''}">
+              <input type="checkbox"
+                .checked=${!hidden}
+                @change=${(e) => this._toggleSkillColumn(id, !e.target.checked)}
+              />
+              ${this._skillName(id)}
+            </label>`;
+        })}
+      </div>
+    `;
+  }
+
+  _renderMatrix() {
+    const { agents, skillIds, allSkillIds, agentSkillMaps, skillCounts, skillSummary } = this._buildMatrix();
+
     if (!agents.length) {
       return html`
         <div class="state-container">
@@ -1790,14 +1898,21 @@ class SupervisorSkillingWidget extends LitElement {
         </div>`;
     }
 
-    const { skillIds, agentSkillMaps, skillCounts, skillSummary } = this._buildMatrix();
-
-    if (!skillIds.length) {
+    if (!allSkillIds.length) {
       return html`
         <div class="state-container">
           <span class="state-icon">📋</span>
           <div class="state-title">No skills to display</div>
           <div class="state-msg">None of the visible agents have a skill profile assigned.</div>
+        </div>`;
+    }
+
+    if (!skillIds.length) {
+      return html`
+        <div class="state-container">
+          <span class="state-icon">⊟</span>
+          <div class="state-title">All columns hidden</div>
+          <div class="state-msg">Use the Columns button to show at least one skill.</div>
         </div>`;
     }
 
@@ -1914,6 +2029,13 @@ class SupervisorSkillingWidget extends LitElement {
           ${this._skills.length} skill(s)
         </div>
 
+        ${this._viewMode === 'matrix' ? html`
+          <button
+            class="view-toggle-btn ${this._showColumnsPanel ? 'active' : ''}"
+            style="background:#f3f4f6;border:1px solid #DDD6FE;border-radius:6px;padding:4px 11px"
+            @click=${() => (this._showColumnsPanel = !this._showColumnsPanel)}
+          >⊟ Columns ${this._hiddenSkillIds.size ? html`<span style="color:#7C3AED">(${this._hiddenSkillIds.size} hidden)</span>` : ''}</button>
+        ` : ''}
         <div class="view-toggle">
           <button
             class="view-toggle-btn ${this._viewMode === 'table' ? 'active' : ''}"
