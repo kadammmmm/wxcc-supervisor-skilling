@@ -908,6 +908,11 @@ class SupervisorSkillingWidget extends LitElement {
       `/organization/${this._orgId}/skill-profile`
     );
     this._skillProfiles = rows.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    if (this._skillProfiles.length > 0) {
+      const sample = this._skillProfiles[0];
+      console.log('[skilling] skill profile sample keys:', Object.keys(sample));
+      console.log('[skilling] skill profile sample activeSkills:', sample.activeSkills?.length, '| skills:', sample.skills?.length);
+    }
   }
 
   async _fetchSkills() {
@@ -932,6 +937,13 @@ class SupervisorSkillingWidget extends LitElement {
         return nameA.localeCompare(nameB);
       });
     console.log('[skilling] loaded', this._agents.length, 'agents');
+    if (this._agents.length > 0) {
+      const sample = this._agents[0];
+      console.log('[skilling] agent sample keys:', Object.keys(sample));
+      console.log('[skilling] agent sample skillProfileId:', sample.skillProfileId,
+        '| skillProfile:', sample.skillProfile,
+        '| activeSkillProfileId:', sample.activeSkillProfileId);
+    }
   }
 
   // ─── Updates ─────────────────────────────────────────────────────────────
@@ -1418,7 +1430,7 @@ class SupervisorSkillingWidget extends LitElement {
     const profileId  = this._modalProfileId;
     const profile    = this._skillProfiles.find(p => p.id === profileId);
     const isSaving   = this._savingAgents.has(agent?.id);
-    const skills     = profile?.skills ?? [];
+    const skills     = profile?.activeSkills ?? profile?.skills ?? [];
 
     return html`
       <div class="modal-backdrop" @click=${(e) => { if (e.target === e.currentTarget) this._closeModal(); }}>
