@@ -1108,7 +1108,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.7.6 — initSDK start');
+    console.log('[skilling] v1.7.7 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1229,6 +1229,24 @@ class SupervisorSkillingWidget extends LitElement {
     if (!res.ok) {
       const txt = await res.text().catch(() => res.statusText);
       throw new Error(`PUT ${path} → ${res.status}: ${txt}`);
+    }
+    return res.json();
+  }
+
+  async _apiPatch(path, body) {
+    const res = await fetch(`${this._apiBaseUrl}${path}`, {
+      method:  'PATCH',
+      headers: {
+        'Authorization': `Bearer ${this._token}`,
+        'Content-Type':  'application/json',
+        'Accept':        'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const txt = await res.text().catch(() => res.statusText);
+      throw new Error(`PATCH ${path} → ${res.status}: ${txt}`);
     }
     return res.json();
   }
@@ -1406,46 +1424,49 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingAgents = new Set([...this._savingAgents, agentId]);
 
     try {
-      // GET from /user/{id} — this endpoint returns all fields required by the
-      // PUT (siteId, agentProfileId, contactCenterEnabled, etc.). The v2/agent
-      // GET omits those fields, so using it as PUT source causes 400 errors.
-      let raw;
+      // Strategy 1: PATCH /v2/agent/{id} with just the changed field.
+      // This is the cleanest approach — no need to fetch and re-send the full record.
+      let result;
       try {
-        raw = await this._apiGet(`/organization/${this._orgId}/user/${agentId}`);
-      } catch (e) {
-        if (!e.message.includes('404')) throw e;
-        // Rare fallback: user endpoint not found, try v2/agent
-        raw = await this._apiGet(`/organization/${this._orgId}/v2/agent/${agentId}`);
+        const patchBody = { skillProfileId: profileId || null };
+        if (customSkills) patchBody.skillProfile = { skills: customSkills };
+        result = await this._apiPatch(
+          `/organization/${this._orgId}/v2/agent/${agentId}`,
+          patchBody
+        );
+        console.log('[skilling] _updateAgent: PATCH v2/agent succeeded');
+      } catch (patchErr) {
+        console.log('[skilling] _updateAgent: PATCH v2/agent failed:', patchErr.message, '— trying PUT /user/');
+
+        // Strategy 2: PUT /user/{id} with a complete payload.
+        // /user GET returns only Webex identity fields (no siteId/agentProfileId),
+        // so we pull those WxCC-specific fields from the already-loaded agent list
+        // (fetched via /v2/agent on page load).
+        const userRaw  = await this._apiGet(`/organization/${this._orgId}/user/${agentId}`);
+        const userCurr = userRaw.data ?? userRaw;
+
+        const loadedAgent = this._agents.find(a => a.id === agentId) ?? {};
+        console.log('[skilling] _updateAgent loadedAgent keys:', JSON.stringify(Object.keys(loadedAgent)));
+        const siteId        = loadedAgent.siteId        ?? loadedAgent.site?.id        ?? null;
+        const agentProfileId = loadedAgent.agentProfileId ?? loadedAgent.agentProfile?.id ?? null;
+        console.log('[skilling] _updateAgent siteId:', siteId, 'agentProfileId:', agentProfileId);
+
+        const payload = {
+          ...userCurr,
+          siteId,
+          agentProfileId,
+          skillProfileId: profileId || null,
+          contactCenterEnabled: true,
+        };
+        if (customSkills) {
+          payload.skillProfile = { ...loadedAgent.skillProfile, skills: customSkills };
+        }
+
+        result = await this._apiPut(
+          `/organization/${this._orgId}/user/${agentId}`,
+          payload
+        );
       }
-      const curr = raw.data ?? raw;
-      console.log('[skilling] _updateAgent GET keys:', JSON.stringify(Object.keys(curr)));
-      console.log('[skilling] _updateAgent site fields:', JSON.stringify({
-        siteId: curr.siteId, site: curr.site,
-        agentProfileId: curr.agentProfileId, agentProfile: curr.agentProfile,
-        skillProfileId: curr.skillProfileId, skillProfile: curr.skillProfile,
-      }));
-
-      // The /user PUT requires flat siteId and agentProfileId strings.
-      // Some orgs return these as nested objects { site: {id}, agentProfile: {id} }
-      // while others return flat strings. Normalise both forms.
-      const siteId        = curr.siteId        ?? curr.site?.id        ?? null;
-      const agentProfileId = curr.agentProfileId ?? curr.agentProfile?.id ?? null;
-
-      const payload = {
-        ...curr,
-        siteId,
-        agentProfileId,
-        skillProfileId: profileId || null,
-        contactCenterEnabled: true,
-      };
-      if (customSkills) {
-        payload.skillProfile = { ...curr.skillProfile, skills: customSkills };
-      }
-
-      const result = await this._apiPut(
-        `/organization/${this._orgId}/user/${agentId}`,
-        payload
-      );
       const updated = result.data ?? result;
 
       this._agents = this._agents.map(a =>
@@ -1763,7 +1784,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.6</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.7</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
