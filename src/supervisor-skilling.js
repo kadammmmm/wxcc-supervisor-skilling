@@ -1385,7 +1385,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.8.0 — initSDK start');
+    console.log('[skilling] v1.8.1 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1799,21 +1799,32 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingProfile = true;
     try {
       const isNew = !this._editingProfileId;
+
+      // Inject organizationId into each activeSkills entry — the API requires it
+      const activeSkills = this._editProfileSkills.map(s => ({
+        organizationId: this._orgId,
+        ...s,
+      }));
+
       const payload = {
         organizationId: this._orgId,
         name:           this._editProfileName.trim(),
-        activeSkills:   this._editProfileSkills,
+        activeSkills,
       };
       if (!isNew) {
         payload.id      = this._editingProfileId;
         payload.version = this._editProfileVersion;
       }
 
+      console.log('[skilling] _saveProfile payload:', JSON.stringify(payload));
+
       let result;
       if (isNew) {
+        // v2 returns 405 for POST; non-v2 is the create endpoint
         try {
           result = await this._apiPost(`/organization/${this._orgId}/v2/skill-profile`, payload);
         } catch (e) {
+          console.log('[skilling] v2 POST failed:', e.message);
           if (!e.message.includes('404') && !e.message.includes('405')) throw e;
           result = await this._apiPost(`/organization/${this._orgId}/skill-profile`, payload);
         }
@@ -1822,6 +1833,7 @@ class SupervisorSkillingWidget extends LitElement {
           result = await this._apiPut(
             `/organization/${this._orgId}/v2/skill-profile/${this._editingProfileId}`, payload);
         } catch (e) {
+          console.log('[skilling] v2 PUT failed:', e.message);
           if (!e.message.includes('404') && !e.message.includes('405')) throw e;
           result = await this._apiPut(
             `/organization/${this._orgId}/skill-profile/${this._editingProfileId}`, payload);
@@ -1839,6 +1851,7 @@ class SupervisorSkillingWidget extends LitElement {
       this._toast('success', `Profile "${saved.name ?? this._editProfileName}" ${isNew ? 'created' : 'updated'}`);
       this._profilesMode = 'list';
     } catch (err) {
+      console.error('[skilling] _saveProfile error:', err.message);
       this._toast('error', `Save failed: ${err.message}`);
     } finally {
       this._savingProfile = false;
@@ -2229,7 +2242,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.8.0</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.8.1</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
