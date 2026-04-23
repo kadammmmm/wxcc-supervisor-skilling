@@ -1108,7 +1108,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.7.4 — initSDK start');
+    console.log('[skilling] v1.7.5 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1418,9 +1418,18 @@ class SupervisorSkillingWidget extends LitElement {
         raw = await this._apiGet(`/organization/${this._orgId}/v2/agent/${agentId}`);
       }
       const curr = raw.data ?? raw;
+      console.log('[skilling] _updateAgent GET keys:', Object.keys(curr));
+
+      // The /user PUT requires flat siteId and agentProfileId strings.
+      // Some orgs return these as nested objects { site: {id}, agentProfile: {id} }
+      // while others return flat strings. Normalise both forms.
+      const siteId        = curr.siteId        ?? curr.site?.id        ?? null;
+      const agentProfileId = curr.agentProfileId ?? curr.agentProfile?.id ?? null;
 
       const payload = {
         ...curr,
+        siteId,
+        agentProfileId,
         skillProfileId: profileId || null,
         contactCenterEnabled: true,
       };
@@ -1749,7 +1758,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.4</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.5</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
