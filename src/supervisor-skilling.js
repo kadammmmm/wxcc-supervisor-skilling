@@ -671,31 +671,25 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.1.0 — initSDK start, Desktop =', typeof Desktop);
+    console.log('[skilling] v1.2.0 — initSDK start');
     try {
-      Desktop.logger?.createLogger('supervisor-skilling-widget');
-
-      const initResp = await Desktop.config.init({
+      await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
         widgetProvider: 'custom',
       });
 
-      console.log('[skilling] init() →', initResp);
-      console.log('[skilling] Desktop.config →', Desktop.config);
-      console.log('[skilling] Desktop.userInfo →', Desktop.userInfo);
-      try { console.log('[skilling] Desktop keys →', Object.keys(Desktop)); } catch (_) {}
-
-      this._orgId = this._resolveOrgId(initResp);
-      this._token = await this._resolveToken(initResp);
-
-      console.log('[skilling] orgId →', this._orgId);
+      // Token first — needed by orgId lookup
+      this._token = await this._resolveToken();
       console.log('[skilling] token →', this._token ? this._token.slice(0, 30) + '…' : 'null');
+      if (!this._token) throw new Error(
+        'Cannot retrieve access token. Ensure you are logged in to Supervisor Desktop.'
+      );
 
+      // orgId — try SDK globals then Webex API
+      this._orgId = await this._resolveOrgId();
+      console.log('[skilling] orgId →', this._orgId);
       if (!this._orgId) throw new Error(
         'Cannot determine org ID — check DevTools console for [skilling] entries.'
-      );
-      if (!this._token) throw new Error(
-        'Cannot retrieve access token — check DevTools console for [skilling] entries.'
       );
 
       await this._fetchAll();
@@ -707,62 +701,61 @@ class SupervisorSkillingWidget extends LitElement {
     }
   }
 
-  _resolveOrgId(initResp) {
-    const candidates = [
-      initResp?.orgId,
-      initResp?.data?.orgId,
-      initResp?.config?.orgId,
-      Desktop.config?.orgId,
-      Desktop.config?.data?.orgId,
-      Desktop.userInfo?.orgId,
-      Desktop.userInfo?.organizationId,
-      Desktop.userInfo?.data?.orgId,
-      this._orgIdFromUrl(),
-    ];
-    for (const c of candidates) {
-      if (c && typeof c === 'string' && c !== 'null' && c !== 'undefined') return c;
-    }
-    console.warn('[skilling] orgId candidates (all null):', candidates);
-    return null;
-  }
+  async _resolveToken() {
+    // 1. Official SDK method on Desktop.actions
+    try {
+      const t = await Desktop.actions.getToken();
+      if (t) { console.log('[skilling] token: Desktop.actions.getToken()'); return t; }
+    } catch (e) { console.warn('[skilling] Desktop.actions.getToken() threw:', e); }
 
-  _orgIdFromUrl() {
-    const m = window.location.href.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\//i);
-    return m ? m[1] : null;
-  }
-
-  async _resolveToken(initResp) {
-    // 1. Init response
-    const fromInit = initResp?.token || initResp?.accessToken || initResp?.access_token
-                  || initResp?.data?.token || initResp?.data?.accessToken;
-    if (fromInit) { console.log('[skilling] token: init response'); return fromInit; }
-
-    // 2. SDK getToken()
-    if (typeof Desktop.config?.getToken === 'function') {
-      try {
-        const t = await Desktop.config.getToken();
-        if (t) { console.log('[skilling] token: Desktop.config.getToken()'); return typeof t === 'string' ? t : (t.access_token || t.token); }
-      } catch (e) { console.warn('[skilling] getToken() threw:', e); }
-    }
-
-    // 3. Direct Desktop properties
-    for (const t of [Desktop.config?.token, Desktop.config?.accessToken, Desktop.userInfo?.token, Desktop.userInfo?.accessToken]) {
-      if (t && typeof t === 'string' && t !== 'null') { console.log('[skilling] token: direct Desktop property'); return t; }
-    }
-
-    // 4. Storage fallback
+    // 2. Storage fallback (widget iframe shares storage with same-origin parent)
     const keys = ['access_token', 'accessToken', 'wxcc_token', 'id_token', 'token', 'bearerToken'];
     for (const store of [localStorage, sessionStorage]) {
       for (const key of keys) {
         try {
           const v = store.getItem(key);
-          if (v && v !== 'null' && v !== 'undefined') { console.log('[skilling] token: storage key =', key); return v; }
+          if (v && v !== 'null' && v !== 'undefined') {
+            console.log('[skilling] token: storage key =', key);
+            return v;
+          }
         } catch (_) {}
       }
     }
 
     console.warn('[skilling] token: exhausted all sources');
     return null;
+  }
+
+  async _resolveOrgId() {
+    // 1. window.wxcc global (set by WxCC runtime per rtdwc-jsapi declaration)
+    if (window.wxcc?.orgId) { console.log('[skilling] orgId: window.wxcc'); return window.wxcc.orgId; }
+
+    // 2. URL pattern (Desktop URL often contains org UUID)
+    const fromUrl = this._orgIdFromUrl();
+    if (fromUrl) { console.log('[skilling] orgId: URL'); return fromUrl; }
+
+    // 3. Webex API — decode orgId from the user's own profile
+    try {
+      const resp = await fetch('https://webexapis.com/v1/people/me', {
+        headers: { 'Authorization': `Bearer ${this._token}` }
+      });
+      if (resp.ok) {
+        const { orgId: b64OrgId } = await resp.json();
+        if (b64OrgId) {
+          const decoded = atob(b64OrgId);
+          const m = decoded.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+          if (m) { console.log('[skilling] orgId: Webex people/me API'); return m[1]; }
+        }
+      }
+    } catch (e) { console.warn('[skilling] Webex people/me failed:', e); }
+
+    console.warn('[skilling] orgId: exhausted all sources');
+    return null;
+  }
+
+  _orgIdFromUrl() {
+    const m = window.location.href.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\//i);
+    return m ? m[1] : null;
   }
 
   // ─── API helpers ─────────────────────────────────────────────────────────
