@@ -638,6 +638,186 @@ class SupervisorSkillingWidget extends LitElement {
       from { opacity: 0; transform: translateX(30px); }
       to   { opacity: 1; transform: translateX(0); }
     }
+
+    /* ── View toggle ── */
+    .view-toggle {
+      display: flex;
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .view-toggle-btn {
+      background: none;
+      border: none;
+      border-radius: 5px;
+      padding: 4px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .view-toggle-btn.active {
+      background: #fff;
+      color: #7C3AED;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+
+    /* ── Matrix view ── */
+    .matrix-wrap {
+      flex: 1;
+      overflow: auto;
+    }
+
+    .matrix-table {
+      border-collapse: collapse;
+      background: #fff;
+      width: max-content;
+      min-width: 100%;
+    }
+
+    .matrix-table thead tr {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .matrix-table th {
+      background: #f8fafc;
+      padding: 9px 10px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e5e7eb;
+      white-space: nowrap;
+    }
+
+    .matrix-table th.mh-agent {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      min-width: 170px;
+      border-right: 2px solid #e5e7eb;
+    }
+
+    .matrix-table th.mh-profile {
+      min-width: 150px;
+      border-right: 2px solid #e5e7eb;
+    }
+
+    .matrix-table th.mh-skill {
+      min-width: 72px;
+      max-width: 110px;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border-right: 1px solid #f1f5f9;
+    }
+
+    .matrix-table tbody tr {
+      border-bottom: 1px solid #f1f5f9;
+      transition: background 0.1s;
+    }
+
+    .matrix-table tbody tr:hover { background: #faf5ff; }
+
+    .matrix-table td {
+      padding: 8px 10px;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    .matrix-table td.mc-agent {
+      position: sticky;
+      left: 0;
+      background: inherit;
+      z-index: 1;
+      border-right: 2px solid #e5e7eb;
+    }
+
+    .matrix-table tbody tr:hover td.mc-agent { background: #faf5ff; }
+
+    .matrix-table td.mc-profile {
+      border-right: 2px solid #e5e7eb;
+    }
+
+    .matrix-table td.mc-skill {
+      text-align: center;
+      border-right: 1px solid #f1f5f9;
+      padding: 6px 4px;
+    }
+
+    .mx-empty { color: #d1d5db; font-size: 14px; }
+
+    .mx-bool {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: #DCFCE7;
+      color: #166534;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .mx-text {
+      display: inline-block;
+      background: #f3f4f6;
+      color: #374151;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 10px;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .mx-lvl {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mx-lvl-high { background: #DCFCE7; color: #166534; }
+    .mx-lvl-mid  { background: #FEF9C3; color: #854D0E; }
+    .mx-lvl-low  { background: #FEE2E2; color: #991B1B; }
+
+    .matrix-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 7px 16px;
+      background: #f8fafc;
+      border-top: 1px solid #e5e7eb;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #6b7280;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
   `;
 
   // ─── Properties ──────────────────────────────────────────────────────────
@@ -664,6 +844,7 @@ class SupervisorSkillingWidget extends LitElement {
     _token:           { state: true },
     _savingAgents:    { state: true },
     _apiBaseUrl:      { state: true },
+    _viewMode:        { state: true },
   };
 
   // ─── Constructor ─────────────────────────────────────────────────────────
@@ -691,6 +872,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._token          = null;
     this._savingAgents   = new Set();
     this._apiBaseUrl     = 'https://api.wxcc-us1.cisco.com';
+    this._viewMode       = 'table';
     this._sdkLogger      = null;
     this._toastTimer     = null;
   }
@@ -708,7 +890,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.4.1 — initSDK start');
+    console.log('[skilling] v1.5.0 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1157,6 +1339,41 @@ class SupervisorSkillingWidget extends LitElement {
     return tid ? this._teamName(tid) : '—';
   }
 
+  _buildMatrix() {
+    const agents = this._filteredAgents;
+    const skillIdSet = new Set();
+    const agentSkillMaps = new Map();
+
+    for (const agent of agents) {
+      const profileSkills = this._profileSkills(agent.skillProfileId);
+      const map = new Map();
+      for (const s of profileSkills) {
+        const id = this._skillDefId(s);
+        skillIdSet.add(id);
+        map.set(id, this._parseSkillEntry(s));
+      }
+      agentSkillMaps.set(agent.id, map);
+    }
+
+    const skillIds = [...skillIdSet].sort((a, b) =>
+      this._skillName(a).localeCompare(this._skillName(b))
+    );
+
+    return { agents, skillIds, agentSkillMaps };
+  }
+
+  _renderMatrixCell(entry) {
+    if (!entry) return html`<span class="mx-empty">—</span>`;
+    const { isBoolean, isText, numericValue, textValue } = entry;
+    if (isBoolean) return html`<span class="mx-bool">✓</span>`;
+    if (isText)    return html`<span class="mx-text">${textValue}</span>`;
+    if (numericValue != null) {
+      const cls = numericValue >= 7 ? 'high' : numericValue >= 4 ? 'mid' : 'low';
+      return html`<span class="mx-lvl mx-lvl-${cls}">${numericValue}</span>`;
+    }
+    return html`<span class="mx-empty">—</span>`;
+  }
+
   // ─── Event handlers ──────────────────────────────────────────────────────
 
   _onTeamChange(e) { this._selectedTeam = e.target.value; }
@@ -1203,7 +1420,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.4.1</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.5.0</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
@@ -1251,7 +1468,8 @@ class SupervisorSkillingWidget extends LitElement {
 
     return html`
       ${this._renderControls()}
-      ${anySelected ? this._renderBulkBar() : ''}
+      ${anySelected && this._viewMode === 'table' ? this._renderBulkBar() : ''}
+      ${this._viewMode === 'matrix' ? this._renderMatrix(agents) : html`
       <div class="table-container">
         ${agents.length === 0
           ? html`
@@ -1284,6 +1502,78 @@ class SupervisorSkillingWidget extends LitElement {
                 </tbody>
               </table>`
         }
+      </div>`}
+    `;
+  }
+
+  _renderMatrix(agents) {
+    if (!agents.length) {
+      return html`
+        <div class="state-container">
+          <span class="state-icon">🔍</span>
+          <div class="state-title">No agents found</div>
+          <div class="state-msg">Try adjusting the team filter or search query.</div>
+        </div>`;
+    }
+
+    const { skillIds, agentSkillMaps } = this._buildMatrix();
+
+    if (!skillIds.length) {
+      return html`
+        <div class="state-container">
+          <span class="state-icon">📋</span>
+          <div class="state-title">No skills to display</div>
+          <div class="state-msg">None of the visible agents have a skill profile assigned.</div>
+        </div>`;
+    }
+
+    return html`
+      <div class="matrix-wrap">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th class="mh-agent">Agent</th>
+              <th class="mh-profile">Skill Profile</th>
+              ${skillIds.map(id => html`
+                <th class="mh-skill" title="${this._skillName(id)}">
+                  ${this._skillName(id)}
+                </th>
+              `)}
+            </tr>
+          </thead>
+          <tbody>
+            ${agents.map(agent => {
+              const skillMap  = agentSkillMaps.get(agent.id) ?? new Map();
+              const profileId = agent.skillProfileId;
+              return html`
+                <tr>
+                  <td class="mc-agent">
+                    <div class="agent-name">${this._agentName(agent)}</div>
+                    <div class="agent-email">${agent.email ?? ''}</div>
+                  </td>
+                  <td class="mc-profile">
+                    ${profileId
+                      ? html`<span class="profile-badge">✓ ${this._profileName(profileId)}</span>`
+                      : html`<span class="profile-badge none">⚠ None</span>`}
+                  </td>
+                  ${skillIds.map(skillId => html`
+                    <td class="mc-skill">
+                      ${this._renderMatrixCell(skillMap.get(skillId))}
+                    </td>
+                  `)}
+                </tr>
+              `;
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div class="matrix-legend">
+        <span style="font-weight:600;color:#374151">Legend:</span>
+        <span class="legend-item"><span class="mx-lvl mx-lvl-high" style="width:20px;height:20px;font-size:10px">7+</span> High (7–10)</span>
+        <span class="legend-item"><span class="mx-lvl mx-lvl-mid"  style="width:20px;height:20px;font-size:10px">4+</span> Mid (4–6)</span>
+        <span class="legend-item"><span class="mx-lvl mx-lvl-low"  style="width:20px;height:20px;font-size:10px">1+</span> Low (1–3)</span>
+        <span class="legend-item"><span class="mx-bool" style="width:20px;height:20px;font-size:11px">✓</span> Boolean on</span>
+        <span class="legend-item"><span class="mx-empty">—</span> Not in profile</span>
       </div>
     `;
   }
@@ -1317,6 +1607,17 @@ class SupervisorSkillingWidget extends LitElement {
         <div class="control-group" style="font-size:11px;color:#6b7280">
           ${this._skillProfiles.length} profile(s) &nbsp;|&nbsp;
           ${this._skills.length} skill(s)
+        </div>
+
+        <div class="view-toggle">
+          <button
+            class="view-toggle-btn ${this._viewMode === 'table' ? 'active' : ''}"
+            @click=${() => (this._viewMode = 'table')}
+          >☰ List</button>
+          <button
+            class="view-toggle-btn ${this._viewMode === 'matrix' ? 'active' : ''}"
+            @click=${() => (this._viewMode = 'matrix')}
+          >⊞ Matrix</button>
         </div>
       </div>
     `;
