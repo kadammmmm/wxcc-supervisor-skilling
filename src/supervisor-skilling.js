@@ -671,7 +671,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.2.0 — initSDK start');
+    console.log('[skilling] v1.3.0 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -796,26 +796,43 @@ class SupervisorSkillingWidget extends LitElement {
     return res.json();
   }
 
-  // Fetches all pages and returns the flat data array.
+  // Fetches all pages using 0-indexed v2 pagination.
+  // v2 responses use meta.links.next to indicate more pages;
+  // falls back to meta.totalCount when links are absent.
   async _fetchPages(path, extraParams = {}) {
     const all = [];
-    let page = 1;
+    let page = 0;          // v2 API is 0-indexed
     const pageSize = 100;
 
     while (true) {
       const json = await this._apiGet(path, { ...extraParams, page, pageSize });
-
-      // Normalise: some endpoints wrap in {data:[...]}, others return array directly
       const rows = Array.isArray(json) ? json : (json.data ?? json.records ?? []);
       if (!rows.length) break;
 
       all.push(...rows);
 
+      // Stop if no next-page link and we've fetched everything
+      const hasNextLink = !!json.meta?.links?.next;
       const total = json.meta?.totalCount ?? json.totalCount ?? json.total ?? null;
-      if (total === null || all.length >= total) break;
+      if (!hasNextLink && (total === null || all.length >= total)) break;
+      if (!hasNextLink) break;
+
       page++;
     }
     return all;
+  }
+
+  // Try path, fall back to fallback if first returns 404.
+  async _fetchPagesWithFallback(path, fallback, extraParams = {}) {
+    try {
+      return await this._fetchPages(path, extraParams);
+    } catch (err) {
+      if (err.message.includes('404') && fallback) {
+        console.log(`[skilling] ${path} → 404, trying ${fallback}`);
+        return this._fetchPages(fallback, extraParams);
+      }
+      throw err;
+    }
   }
 
   // ─── Data fetching ───────────────────────────────────────────────────────
@@ -841,25 +858,39 @@ class SupervisorSkillingWidget extends LitElement {
   }
 
   async _fetchTeams() {
-    const rows = await this._fetchPages(`/organization/${this._orgId}/team`);
+    const rows = await this._fetchPagesWithFallback(
+      `/organization/${this._orgId}/v2/team`,
+      `/organization/${this._orgId}/team`
+    );
     this._teams = rows.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
   }
 
   async _fetchSkillProfiles() {
-    const rows = await this._fetchPages(`/organization/${this._orgId}/skill-profile`);
+    const rows = await this._fetchPagesWithFallback(
+      `/organization/${this._orgId}/v2/skill-profile`,
+      `/organization/${this._orgId}/skill-profile`
+    );
     this._skillProfiles = rows.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
   }
 
   async _fetchSkills() {
-    const rows = await this._fetchPages(`/organization/${this._orgId}/skill`);
+    const rows = await this._fetchPagesWithFallback(
+      `/organization/${this._orgId}/v2/skill`,
+      `/organization/${this._orgId}/skill`
+    );
     this._skills = rows;
   }
 
   async _fetchAgents() {
-    const rows = await this._fetchPages(`/organization/${this._orgId}/agent`);
+    // WxCC v2 uses /v2/agent; some deployments use /v2/user for agent records
+    const rows = await this._fetchPagesWithFallback(
+      `/organization/${this._orgId}/v2/agent`,
+      `/organization/${this._orgId}/v2/user`
+    );
     this._agents = rows
-      .filter(a => !a.agentType || a.agentType === 'AGENT' || a.type === 'AGENT')
+      .filter(a => !a.agentType || a.agentType === 'AGENT' || a.type === 'AGENT' || a.userType === 'AGENT')
       .sort((a, b) => (a.name ?? a.email ?? '').localeCompare(b.name ?? b.email ?? ''));
+    console.log('[skilling] loaded', this._agents.length, 'agents');
   }
 
   // ─── Updates ─────────────────────────────────────────────────────────────
@@ -868,24 +899,32 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingAgents = new Set([...this._savingAgents, agentId]);
 
     try {
-      // Fetch current agent record to preserve all other fields
-      const raw  = await this._apiGet(`/organization/${this._orgId}/agent/${agentId}`);
+      // GET current record first (preserve all other fields)
+      let raw;
+      try {
+        raw = await this._apiGet(`/organization/${this._orgId}/v2/agent/${agentId}`);
+      } catch (e) {
+        if (e.message.includes('404')) {
+          raw = await this._apiGet(`/organization/${this._orgId}/v2/user/${agentId}`);
+        } else throw e;
+      }
       const curr = raw.data ?? raw;
 
       const payload = { ...curr, skillProfileId: profileId || null };
-
-      // If custom skill overrides were provided, attach them
       if (customSkills) {
-        payload.skillProfile = {
-          ...curr.skillProfile,
-          skills: customSkills,
-        };
+        payload.skillProfile = { ...curr.skillProfile, skills: customSkills };
       }
 
-      const result = await this._apiPut(`/organization/${this._orgId}/agent/${agentId}`, payload);
+      let result;
+      try {
+        result = await this._apiPut(`/organization/${this._orgId}/v2/agent/${agentId}`, payload);
+      } catch (e) {
+        if (e.message.includes('404')) {
+          result = await this._apiPut(`/organization/${this._orgId}/v2/user/${agentId}`, payload);
+        } else throw e;
+      }
       const updated = result.data ?? result;
 
-      // Optimistic local update
       this._agents = this._agents.map(a =>
         a.id === agentId
           ? { ...a, skillProfileId: updated.skillProfileId ?? profileId }
