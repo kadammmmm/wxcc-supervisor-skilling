@@ -674,18 +674,32 @@ class SupervisorSkillingWidget extends LitElement {
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
     try {
-      this._sdkLogger = Desktop.logger.createLogger('supervisor-skilling-widget');
+      this._sdkLogger = Desktop.logger?.createLogger('supervisor-skilling-widget');
 
-      await Desktop.config.init({
+      // Capture the init response — it often carries orgId directly
+      const initResp = await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
         widgetProvider: 'custom',
       });
 
-      this._orgId = this._resolveOrgId();
-      this._token = await this._resolveToken();
+      // Log everything so we can diagnose what the SDK exposes
+      console.log('[skilling] Desktop.config.init() →', initResp);
+      console.log('[skilling] Desktop.config →', Desktop.config);
+      console.log('[skilling] Desktop.userInfo →', Desktop.userInfo);
+      try { console.log('[skilling] Desktop keys →', Object.keys(Desktop)); } catch (_) {}
 
-      if (!this._token) throw new Error('Could not retrieve an access token from the Desktop SDK.');
-      if (!this._orgId) throw new Error('Could not determine the organization ID.');
+      this._orgId = this._resolveOrgId(initResp);
+      this._token = await this._resolveToken(initResp);
+
+      console.log('[skilling] resolved orgId →', this._orgId);
+      console.log('[skilling] resolved token →', this._token ? this._token.slice(0, 30) + '…' : 'null');
+
+      if (!this._orgId) throw new Error(
+        'Cannot determine org ID. Open browser DevTools → Console, search for "[skilling] Desktop" and share the output.'
+      );
+      if (!this._token) throw new Error(
+        'Cannot retrieve access token. Open browser DevTools → Console, search for "[skilling] Desktop" and share the output.'
+      );
 
       await this._fetchAll();
     } catch (err) {
@@ -696,13 +710,31 @@ class SupervisorSkillingWidget extends LitElement {
     }
   }
 
-  _resolveOrgId() {
-    return (
-      Desktop.config?.orgId ||
-      Desktop.userInfo?.orgId ||
-      Desktop.userInfo?.organizationId ||
-      this._orgIdFromUrl()
-    );
+  _resolveOrgId(initResp) {
+    // Walk every plausible location the SDK might put the org ID
+    const candidates = [
+      initResp?.orgId,
+      initResp?.data?.orgId,
+      initResp?.config?.orgId,
+      initResp?.orgDetails?.id,
+      Desktop.config?.orgId,
+      Desktop.config?.data?.orgId,
+      Desktop.config?.orgDetails?.id,
+      Desktop.userInfo?.orgId,
+      Desktop.userInfo?.organizationId,
+      Desktop.userInfo?.data?.orgId,
+      Desktop.agentContact?.orgId,
+      this._orgIdFromUrl(),
+    ];
+
+    for (const c of candidates) {
+      if (c && typeof c === 'string' && c !== 'null' && c !== 'undefined') {
+        return c;
+      }
+    }
+
+    console.warn('[skilling] orgId not found in candidates:', candidates);
+    return null;
   }
 
   _orgIdFromUrl() {
@@ -710,21 +742,53 @@ class SupervisorSkillingWidget extends LitElement {
     return m ? m[1] : null;
   }
 
-  async _resolveToken() {
-    // Method 1: SDK method
+  async _resolveToken(initResp) {
+    // 1. Init response may carry the token
+    const fromInit = initResp?.token || initResp?.accessToken || initResp?.access_token
+                  || initResp?.data?.token || initResp?.data?.accessToken;
+    if (fromInit) { console.log('[skilling] token source: init response'); return fromInit; }
+
+    // 2. SDK getToken() method
     if (typeof Desktop.config?.getToken === 'function') {
       try {
         const t = await Desktop.config.getToken();
-        if (t) return typeof t === 'string' ? t : (t.access_token || t.token || null);
-      } catch (_) {}
+        if (t) {
+          console.log('[skilling] token source: Desktop.config.getToken()');
+          return typeof t === 'string' ? t : (t.access_token || t.token || null);
+        }
+      } catch (e) { console.warn('[skilling] getToken() threw:', e); }
     }
-    // Method 2: localStorage / sessionStorage
-    for (const store of [localStorage, sessionStorage]) {
-      for (const key of ['access_token', 'accessToken', 'wxcc_token', 'id_token']) {
-        const v = store.getItem(key);
-        if (v) return v;
+
+    // 3. Direct properties on config / userInfo
+    const direct = [
+      Desktop.config?.token,
+      Desktop.config?.accessToken,
+      Desktop.userInfo?.token,
+      Desktop.userInfo?.accessToken,
+      Desktop.userInfo?.access_token,
+    ];
+    for (const t of direct) {
+      if (t && typeof t === 'string' && t !== 'null') {
+        console.log('[skilling] token source: direct Desktop property');
+        return t;
       }
     }
+
+    // 4. localStorage / sessionStorage (most reliable fallback in browser)
+    const keys = ['access_token', 'accessToken', 'wxcc_token', 'id_token', 'token', 'bearerToken'];
+    for (const store of [localStorage, sessionStorage]) {
+      for (const key of keys) {
+        try {
+          const v = store.getItem(key);
+          if (v && v !== 'null' && v !== 'undefined') {
+            console.log('[skilling] token source: storage key =', key);
+            return v;
+          }
+        } catch (_) {}
+      }
+    }
+
+    console.warn('[skilling] token not found — exhausted all sources');
     return null;
   }
 
