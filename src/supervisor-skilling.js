@@ -1016,7 +1016,8 @@ class SupervisorSkillingWidget extends LitElement {
     if (!profile?.skills) return {};
     const map = {};
     for (const s of profile.skills) {
-      map[s.skillId] = s.competencyLevel ?? s.proficiency ?? 5;
+      const { numericValue } = this._parseSkillEntry(s);
+      map[this._skillDefId(s)] = numericValue ?? 5;
     }
     return map;
   }
@@ -1027,9 +1028,9 @@ class SupervisorSkillingWidget extends LitElement {
 
     const profileId    = this._modalProfileId;
     const customSkills = this._showDirectEdit
-      ? Object.entries(this._directSkills).map(([skillId, lvl]) => ({
-          skillId,
-          competencyLevel: Number(lvl),
+      ? Object.entries(this._directSkills).map(([skillDefinitionId, lvl]) => ({
+          skillDefinitionId,
+          value: String(lvl),
         }))
       : null;
 
@@ -1104,7 +1105,22 @@ class SupervisorSkillingWidget extends LitElement {
   }
 
   _skillType(skillId) {
-    return this._skills.find(s => s.id === skillId)?.type ?? this._skills.find(s => s.id === skillId)?.skillType ?? 'PROFICIENCY';
+    const def = this._skills.find(s => s.id === skillId);
+    return def?.type ?? def?.skillType ?? 'PROFICIENCY';
+  }
+
+  // Returns { isBoolean, numericValue } from a profile skill entry.
+  // API field is `value` (string); boolean skills have "true"/"false".
+  _parseSkillEntry(s) {
+    const raw = s.value ?? s.competencyLevel ?? s.proficiency;
+    const isBoolean = raw === 'true' || raw === 'false' ||
+      this._skillType(s.skillDefinitionId ?? s.skillId) === 'BOOLEAN';
+    const numericValue = isBoolean ? null : (Number(raw) || 0);
+    return { isBoolean, numericValue };
+  }
+
+  _skillDefId(s) {
+    return s.skillDefinitionId ?? s.skillId;
   }
 
   _agentTeamName(agent) {
@@ -1343,16 +1359,15 @@ class SupervisorSkillingWidget extends LitElement {
             ? html`
                 <div class="skill-defs">
                   ${visibleSkills.map(s => {
-                    const type = this._skillType(s.skillId);
-                    const isBoolean = type === 'BOOLEAN' || type === 'BOOL';
-                    const lvl = s.competencyLevel ?? s.proficiency;
+                    const id = this._skillDefId(s);
+                    const { isBoolean, numericValue } = this._parseSkillEntry(s);
                     return html`
                       <div class="skill-def-row">
-                        <span class="skill-def-name">${this._skillName(s.skillId)}</span>
+                        <span class="skill-def-name">${this._skillName(id)}</span>
                         ${isBoolean
                           ? html`<span class="skill-def-bool">✓</span>`
-                          : lvl != null
-                            ? html`<span class="skill-def-lvl">${lvl}/10</span>`
+                          : numericValue != null
+                            ? html`<span class="skill-def-lvl">${numericValue}/10</span>`
                             : ''}
                       </div>
                     `;
@@ -1435,14 +1450,20 @@ class SupervisorSkillingWidget extends LitElement {
                   ? html`
                       <div class="preview-skills">
                         ${skills.map(s => {
-                          const lvl = s.competencyLevel ?? s.proficiency ?? 0;
+                          const id = this._skillDefId(s);
+                          const { isBoolean, numericValue } = this._parseSkillEntry(s);
+                          const lvl = numericValue ?? 0;
                           return html`
                             <div class="preview-skill">
-                              <span class="preview-skill-name">${this._skillName(s.skillId)}</span>
-                              <div class="proficiency-bar-wrap">
-                                <div class="proficiency-bar" style="width:${lvl * 10}%"></div>
-                              </div>
-                              <span class="proficiency-label">${lvl}/10</span>
+                              <span class="preview-skill-name">${this._skillName(id)}</span>
+                              ${isBoolean ? html`
+                                <span style="color:#16a34a;font-weight:700;font-size:12px">✓ Yes</span>
+                              ` : html`
+                                <div class="proficiency-bar-wrap">
+                                  <div class="proficiency-bar" style="width:${lvl * 10}%"></div>
+                                </div>
+                                <span class="proficiency-label">${lvl}/10</span>
+                              `}
                             </div>
                           `;
                         })}
@@ -1467,15 +1488,17 @@ class SupervisorSkillingWidget extends LitElement {
                   </div>
                   <div class="skills-editor">
                     ${skills.map(s => {
-                      const skillId = s.skillId;
-                      const current = this._directSkills[skillId] ?? s.competencyLevel ?? s.proficiency ?? 5;
+                      const id = this._skillDefId(s);
+                      const { isBoolean, numericValue } = this._parseSkillEntry(s);
+                      const current = this._directSkills[id] ?? numericValue ?? 5;
+                      if (isBoolean) return '';
                       return html`
                         <div class="skill-row">
-                          <span class="skill-row-name">${this._skillName(skillId)}</span>
+                          <span class="skill-row-name">${this._skillName(id)}</span>
                           <input
                             type="range" min="1" max="10" step="1"
                             .value=${String(current)}
-                            @input=${(e) => this._onSkillSlider(skillId, e.target.value)}
+                            @input=${(e) => this._onSkillSlider(id, e.target.value)}
                           />
                           <span class="lvl-display">${current}</span>
                         </div>
