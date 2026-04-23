@@ -1024,6 +1024,267 @@ class SupervisorSkillingWidget extends LitElement {
       align-items: center;
       gap: 5px;
     }
+
+    /* ── Profiles management view ── */
+    .profiles-view {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profiles-toolbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e5ea;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .profiles-toolbar-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #374151;
+      flex: 1;
+    }
+
+    .profiles-body {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+    }
+
+    .profile-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .profile-list-item {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .profile-list-item:hover {
+      border-color: #DDD6FE;
+      box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+    }
+
+    .profile-list-info { flex: 1; min-width: 0; }
+
+    .profile-list-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .profile-list-meta {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 3px;
+    }
+
+    .profile-list-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .confirm-delete-inline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fee2e2;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #7f1d1d;
+      font-weight: 600;
+    }
+
+    /* ── Profile edit form ── */
+    .profile-edit-wrap {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .profile-edit-section {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .profile-edit-section-header {
+      background: #f8fafc;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 9px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-edit-section-body { padding: 16px; }
+
+    .pe-name-input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a2e;
+      background: #fff;
+      outline: none;
+    }
+
+    .pe-name-input:focus {
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+    }
+
+    .pe-skill-list { display: flex; flex-direction: column; gap: 7px; }
+
+    .pe-skill-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    .pe-skill-name {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1a1a2e;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .pe-type-badge {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .pe-type-proficiency { background: #EDE9FE; color: #5B21B6; }
+    .pe-type-boolean     { background: #DCFCE7; color: #166534; }
+    .pe-type-text        { background: #E0F2FE; color: #0369A1; }
+
+    .pe-value-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .pe-value-wrap input[type="range"] {
+      width: 100px;
+      accent-color: #7C3AED;
+      cursor: pointer;
+    }
+
+    .pe-value-wrap .lvl-display {
+      width: 22px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #7C3AED;
+    }
+
+    .pe-value-wrap input[type="text"] {
+      width: 130px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .pe-bool-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .pe-bool-toggle input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #7C3AED;
+      cursor: pointer;
+    }
+
+    .pe-remove-btn {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .pe-remove-btn:hover { background: #fee2e2; color: #dc2626; }
+
+    .pe-add-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e5e7eb;
+    }
+
+    .pe-add-row select { flex: 1; }
+
+    .pe-empty {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 12px;
+      padding: 20px 0;
+    }
+
+    .pe-warning {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #92400E;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .pe-footer {
+      background: #f8fafc;
+      border-top: 1px solid #e5e7eb;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
   `;
 
   // ─── Properties ──────────────────────────────────────────────────────────
@@ -1055,8 +1316,16 @@ class SupervisorSkillingWidget extends LitElement {
     _matrixSortDir:     { state: true },
     _hiddenSkillIds:    { state: true },
     _showColumnsPanel:  { state: true },
-    _coverageGaps:      { state: true },
-    _gapsDismissed:   { state: true },
+    _coverageGaps:        { state: true },
+    _gapsDismissed:       { state: true },
+    _profilesMode:        { state: true },
+    _editingProfileId:    { state: true },
+    _editProfileName:     { state: true },
+    _editProfileSkills:   { state: true },
+    _editProfileVersion:  { state: true },
+    _editProfileOriginal: { state: true },
+    _savingProfile:       { state: true },
+    _confirmDeleteId:     { state: true },
   };
 
   // ─── Constructor ─────────────────────────────────────────────────────────
@@ -1089,10 +1358,18 @@ class SupervisorSkillingWidget extends LitElement {
     this._matrixSortDir    = 'desc';
     this._hiddenSkillIds   = new Set();
     this._showColumnsPanel = false;
-    this._coverageGaps     = [];
-    this._gapsDismissed  = false;
-    this._sdkLogger      = null;
-    this._toastTimer     = null;
+    this._coverageGaps       = [];
+    this._gapsDismissed      = false;
+    this._profilesMode       = 'list';
+    this._editingProfileId   = null;
+    this._editProfileName    = '';
+    this._editProfileSkills  = [];
+    this._editProfileVersion = 0;
+    this._editProfileOriginal = null;
+    this._savingProfile      = false;
+    this._confirmDeleteId    = null;
+    this._sdkLogger          = null;
+    this._toastTimer         = null;
   }
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────
@@ -1108,7 +1385,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.7.7 — initSDK start');
+    console.log('[skilling] v1.8.0 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1249,6 +1526,38 @@ class SupervisorSkillingWidget extends LitElement {
       throw new Error(`PATCH ${path} → ${res.status}: ${txt}`);
     }
     return res.json();
+  }
+
+  async _apiPost(path, body) {
+    const res = await fetch(`${this._apiBaseUrl}${path}`, {
+      method:  'POST',
+      headers: {
+        'Authorization': `Bearer ${this._token}`,
+        'Content-Type':  'application/json',
+        'Accept':        'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => res.statusText);
+      throw new Error(`POST ${path} → ${res.status}: ${txt}`);
+    }
+    return res.json();
+  }
+
+  async _apiDelete(path) {
+    const res = await fetch(`${this._apiBaseUrl}${path}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this._token}`,
+        'Accept':        'application/json',
+      },
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => res.statusText);
+      throw new Error(`DELETE ${path} → ${res.status}: ${txt}`);
+    }
+    return res.status === 204 ? {} : res.json().catch(() => ({}));
   }
 
   // Fetches all pages using 0-indexed v2 pagination.
@@ -1416,6 +1725,142 @@ class SupervisorSkillingWidget extends LitElement {
     this._gapsDismissed = false;
     console.log('[skilling] coverage gaps:', this._coverageGaps.length,
       '| available agents matched:', availableIds.size);
+  }
+
+  // ─── Skill Profile Management ────────────────────────────────────────────
+
+  _skillType(skillId) {
+    const def = this._skills.find(s => s.id === skillId);
+    if (!def) return 'proficiency';
+    const t = (def.type ?? def.subType ?? def.skillType ?? '').toUpperCase();
+    if (t.includes('BOOL') || t === 'BINARY') return 'boolean';
+    if (t.includes('TEXT') || t.includes('ENUM') || t.includes('STRING')) return 'text';
+    return 'proficiency';
+  }
+
+  _skillEntryType(entry) {
+    if (entry.booleanValue !== undefined && entry.booleanValue !== null) return 'boolean';
+    if (entry.textValue    !== undefined && entry.textValue    !== null) return 'text';
+    return 'proficiency';
+  }
+
+  _agentCountForProfile(profileId) {
+    return this._agents.filter(a => a.skillProfileId === profileId).length;
+  }
+
+  _startEditProfile(profile) {
+    this._editingProfileId    = profile.id;
+    this._editProfileName     = profile.name ?? '';
+    this._editProfileVersion  = profile.version ?? 0;
+    this._editProfileOriginal = profile;
+    this._editProfileSkills   = (profile.activeSkills ?? profile.skills ?? []).map(s => ({ ...s }));
+    this._profilesMode        = 'edit';
+    this._confirmDeleteId     = null;
+  }
+
+  _startNewProfile() {
+    this._editingProfileId    = null;
+    this._editProfileName     = '';
+    this._editProfileVersion  = 0;
+    this._editProfileOriginal = null;
+    this._editProfileSkills   = [];
+    this._profilesMode        = 'edit';
+    this._confirmDeleteId     = null;
+  }
+
+  _addSkillToProfile(skillId) {
+    if (!skillId) return;
+    if (this._editProfileSkills.some(s => (s.skillId ?? s.skillDefinitionId) === skillId)) return;
+    const type  = this._skillType(skillId);
+    const entry = { skillId };
+    if      (type === 'boolean') entry.booleanValue = false;
+    else if (type === 'text')    entry.textValue    = '';
+    else                         entry.proficiencyValue = 5;
+    this._editProfileSkills = [...this._editProfileSkills, entry];
+  }
+
+  _removeSkillFromProfile(skillId) {
+    this._editProfileSkills = this._editProfileSkills.filter(
+      s => (s.skillId ?? s.skillDefinitionId) !== skillId
+    );
+  }
+
+  _updateEditSkillValue(skillId, field, value) {
+    this._editProfileSkills = this._editProfileSkills.map(s =>
+      (s.skillId ?? s.skillDefinitionId) === skillId ? { ...s, [field]: value } : s
+    );
+  }
+
+  async _saveProfile() {
+    if (!this._editProfileName.trim()) {
+      this._toast('error', 'Profile name is required');
+      return;
+    }
+    this._savingProfile = true;
+    try {
+      const isNew = !this._editingProfileId;
+      const payload = {
+        organizationId: this._orgId,
+        name:           this._editProfileName.trim(),
+        activeSkills:   this._editProfileSkills,
+      };
+      if (!isNew) {
+        payload.id      = this._editingProfileId;
+        payload.version = this._editProfileVersion;
+      }
+
+      let result;
+      if (isNew) {
+        try {
+          result = await this._apiPost(`/organization/${this._orgId}/v2/skill-profile`, payload);
+        } catch (e) {
+          if (!e.message.includes('404') && !e.message.includes('405')) throw e;
+          result = await this._apiPost(`/organization/${this._orgId}/skill-profile`, payload);
+        }
+      } else {
+        try {
+          result = await this._apiPut(
+            `/organization/${this._orgId}/v2/skill-profile/${this._editingProfileId}`, payload);
+        } catch (e) {
+          if (!e.message.includes('404') && !e.message.includes('405')) throw e;
+          result = await this._apiPut(
+            `/organization/${this._orgId}/skill-profile/${this._editingProfileId}`, payload);
+        }
+      }
+
+      const saved = result.data ?? result;
+      if (isNew) {
+        this._skillProfiles = [...this._skillProfiles, saved];
+      } else {
+        this._skillProfiles = this._skillProfiles.map(p =>
+          p.id === this._editingProfileId ? { ...p, ...saved } : p
+        );
+      }
+      this._toast('success', `Profile "${saved.name ?? this._editProfileName}" ${isNew ? 'created' : 'updated'}`);
+      this._profilesMode = 'list';
+    } catch (err) {
+      this._toast('error', `Save failed: ${err.message}`);
+    } finally {
+      this._savingProfile = false;
+    }
+  }
+
+  async _deleteProfile(profileId) {
+    const name = this._skillProfiles.find(p => p.id === profileId)?.name ?? profileId;
+    try {
+      try {
+        await this._apiDelete(`/organization/${this._orgId}/v2/skill-profile/${profileId}`);
+      } catch (e) {
+        if (!e.message.includes('404') && !e.message.includes('405')) throw e;
+        await this._apiDelete(`/organization/${this._orgId}/skill-profile/${profileId}`);
+      }
+      this._skillProfiles = this._skillProfiles.filter(p => p.id !== profileId);
+      this._toast('success', `Profile "${name}" deleted`);
+    } catch (err) {
+      this._toast('error', `Delete failed: ${err.message}`);
+    } finally {
+      this._confirmDeleteId = null;
+    }
   }
 
   // ─── Updates ─────────────────────────────────────────────────────────────
@@ -1784,7 +2229,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.7</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.8.0</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
@@ -1832,6 +2277,7 @@ class SupervisorSkillingWidget extends LitElement {
 
     return html`
       ${this._renderControls()}
+      ${this._viewMode === 'profiles' ? this._renderProfilesView() : html`
       ${this._renderCoverageWarning()}
       ${this._viewMode === 'matrix' ? this._renderColumnsPanel() : ''}
       ${anySelected && this._viewMode === 'table' ? this._renderBulkBar() : ''}
@@ -1869,6 +2315,7 @@ class SupervisorSkillingWidget extends LitElement {
               </table>`
         }
       </div>`}
+      `}
     `;
   }
 
@@ -2035,6 +2482,187 @@ class SupervisorSkillingWidget extends LitElement {
     `;
   }
 
+  // ─── Profiles view ───────────────────────────────────────────────────────
+
+  _renderProfilesView() {
+    return this._profilesMode === 'edit'
+      ? this._renderProfileEdit()
+      : this._renderProfilesList();
+  }
+
+  _renderProfilesList() {
+    const profiles = [...this._skillProfiles].sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    return html`
+      <div class="profiles-view">
+        <div class="profiles-toolbar">
+          <span class="profiles-toolbar-title">
+            Skill Profiles &nbsp;·&nbsp; ${profiles.length} profile${profiles.length !== 1 ? 's' : ''}
+          </span>
+          <button class="btn btn-primary btn-sm" @click=${() => this._startNewProfile()}>
+            + New Profile
+          </button>
+        </div>
+        <div class="profiles-body">
+          ${profiles.length === 0 ? html`
+            <div class="state-container">
+              <span class="state-icon">📋</span>
+              <div class="state-title">No skill profiles</div>
+              <div class="state-msg">Create your first profile to get started.</div>
+            </div>` : html`
+            <div class="profile-list">
+              ${profiles.map(p => {
+                const count       = this._agentCountForProfile(p.id);
+                const skills      = p.activeSkills ?? p.skills ?? [];
+                const isConfirm   = this._confirmDeleteId === p.id;
+                return html`
+                  <div class="profile-list-item">
+                    <div class="profile-list-info">
+                      <div class="profile-list-name">${p.name}</div>
+                      <div class="profile-list-meta">
+                        ${skills.length} skill${skills.length !== 1 ? 's' : ''}
+                        &nbsp;·&nbsp;
+                        ${count} agent${count !== 1 ? 's' : ''} assigned
+                      </div>
+                    </div>
+                    <div class="profile-list-actions">
+                      ${isConfirm ? html`
+                        <div class="confirm-delete-inline">
+                          Delete "${p.name}"?
+                          <button class="btn btn-danger btn-sm"
+                            @click=${() => this._deleteProfile(p.id)}>Yes, delete</button>
+                          <button class="btn btn-ghost btn-sm"
+                            @click=${() => (this._confirmDeleteId = null)}>Cancel</button>
+                        </div>` : html`
+                        <button class="btn btn-ghost btn-sm"
+                          @click=${() => this._startEditProfile(p)}>✏️ Edit</button>
+                        <button class="btn btn-danger btn-sm"
+                          title="${count > 0 ? `${count} agent(s) currently use this profile` : 'Delete profile'}"
+                          @click=${() => (this._confirmDeleteId = p.id)}>🗑 Delete</button>
+                      `}
+                    </div>
+                  </div>`;
+              })}
+            </div>`}
+        </div>
+      </div>
+    `;
+  }
+
+  _renderProfileEdit() {
+    const isNew    = !this._editingProfileId;
+    const skills   = this._editProfileSkills;
+    const usedIds  = new Set(skills.map(s => s.skillId ?? s.skillDefinitionId));
+    const available = this._skills.filter(s => !usedIds.has(s.id));
+    const agentCount = isNew ? 0 : this._agentCountForProfile(this._editingProfileId);
+
+    return html`
+      <div class="profiles-view">
+        <div class="profiles-toolbar">
+          <button class="btn btn-ghost btn-sm"
+            @click=${() => (this._profilesMode = 'list')}>← Back</button>
+          <span class="profiles-toolbar-title">
+            ${isNew ? 'New Skill Profile' : `Edit: ${this._editProfileName || '…'}`}
+          </span>
+          ${this._savingProfile
+            ? html`<span class="saving-spinner" style="width:14px;height:14px"></span>`
+            : html`
+              <button class="btn btn-ghost btn-sm"
+                @click=${() => (this._profilesMode = 'list')}>Cancel</button>
+              <button class="btn btn-primary btn-sm"
+                ?disabled=${this._savingProfile}
+                @click=${() => this._saveProfile()}>💾 Save Profile</button>
+            `}
+        </div>
+
+        <div class="profiles-body">
+          <div class="profile-edit-wrap">
+
+            ${!isNew && agentCount > 0 ? html`
+              <div class="pe-warning">
+                ⚠️ <span><strong>${agentCount} agent${agentCount !== 1 ? 's are' : ' is'} currently assigned to this profile.</strong>
+                Changes will take effect immediately for all of them.</span>
+              </div>` : ''}
+
+            <!-- Profile name -->
+            <div class="profile-edit-section">
+              <div class="profile-edit-section-header">Profile Name</div>
+              <div class="profile-edit-section-body">
+                <input
+                  class="pe-name-input"
+                  type="text"
+                  placeholder="e.g. English Support — Tier 1"
+                  .value=${this._editProfileName}
+                  @input=${(e) => (this._editProfileName = e.target.value)}
+                />
+              </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="profile-edit-section">
+              <div class="profile-edit-section-header">
+                Skills &nbsp;·&nbsp; ${skills.length} defined
+              </div>
+              <div class="profile-edit-section-body">
+                ${skills.length === 0
+                  ? html`<div class="pe-empty">No skills added yet. Use the selector below to add skills.</div>`
+                  : html`
+                    <div class="pe-skill-list">
+                      ${skills.map(entry => {
+                        const sid  = entry.skillId ?? entry.skillDefinitionId;
+                        const type = this._skillEntryType(entry);
+                        return html`
+                          <div class="pe-skill-row">
+                            <span class="pe-skill-name">${this._skillName(sid)}</span>
+                            <span class="pe-type-badge pe-type-${type}">${type}</span>
+                            <div class="pe-value-wrap">
+                              ${type === 'boolean' ? html`
+                                <label class="pe-bool-toggle">
+                                  <input type="checkbox"
+                                    .checked=${!!entry.booleanValue}
+                                    @change=${(e) => this._updateEditSkillValue(sid, 'booleanValue', e.target.checked)}
+                                  />
+                                  ${entry.booleanValue ? 'Yes' : 'No'}
+                                </label>
+                              ` : type === 'text' ? html`
+                                <input type="text"
+                                  placeholder="Text value…"
+                                  .value=${entry.textValue ?? ''}
+                                  @input=${(e) => this._updateEditSkillValue(sid, 'textValue', e.target.value)}
+                                />
+                              ` : html`
+                                <input type="range" min="1" max="10" step="1"
+                                  .value=${String(entry.proficiencyValue ?? 5)}
+                                  @input=${(e) => this._updateEditSkillValue(sid, 'proficiencyValue', Number(e.target.value))}
+                                />
+                                <span class="lvl-display">${entry.proficiencyValue ?? 5}</span>
+                              `}
+                            </div>
+                            <button class="pe-remove-btn" title="Remove skill"
+                              @click=${() => this._removeSkillFromProfile(sid)}>✕</button>
+                          </div>`;
+                      })}
+                    </div>`}
+
+                ${available.length > 0 ? html`
+                  <div class="pe-add-row">
+                    <select
+                      @change=${(e) => { this._addSkillToProfile(e.target.value); e.target.value = ''; }}
+                    >
+                      <option value="">+ Add a skill…</option>
+                      ${available.map(s => html`
+                        <option value=${s.id}>${s.name ?? s.skillName ?? s.id}</option>
+                      `)}
+                    </select>
+                  </div>` : ''}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   _renderControls() {
     return html`
       <div class="controls">
@@ -2082,6 +2710,10 @@ class SupervisorSkillingWidget extends LitElement {
             class="view-toggle-btn ${this._viewMode === 'matrix' ? 'active' : ''}"
             @click=${() => (this._viewMode = 'matrix')}
           >⊞ Matrix</button>
+          <button
+            class="view-toggle-btn ${this._viewMode === 'profiles' ? 'active' : ''}"
+            @click=${() => { this._viewMode = 'profiles'; this._profilesMode = 'list'; }}
+          >⚙ Profiles</button>
         </div>
       </div>
     `;
