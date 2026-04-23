@@ -1108,7 +1108,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.7.2 — initSDK start');
+    console.log('[skilling] v1.7.3 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1406,14 +1406,16 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingAgents = new Set([...this._savingAgents, agentId]);
 
     try {
-      // GET current record first (preserve all other fields)
+      // GET current record first (preserve all other fields).
+      // Track which path succeeded so we PUT to the same endpoint.
       let raw;
+      let useLegacyPath = false;
       try {
         raw = await this._apiGet(`/organization/${this._orgId}/v2/agent/${agentId}`);
       } catch (e) {
-        if (e.message.includes('404')) {
-          raw = await this._apiGet(`/organization/${this._orgId}/user/${agentId}`);
-        } else throw e;
+        if (!e.message.includes('404')) throw e;
+        raw = await this._apiGet(`/organization/${this._orgId}/user/${agentId}`);
+        useLegacyPath = true;
       }
       const curr = raw.data ?? raw;
 
@@ -1421,12 +1423,21 @@ class SupervisorSkillingWidget extends LitElement {
       if (customSkills) {
         payload.skillProfile = { ...curr.skillProfile, skills: customSkills };
       }
+      // /user/{id} requires contactCenterEnabled:true to accept skillProfileId.
+      // The v2/agent response doesn't carry this field, so we set it explicitly
+      // whenever the legacy path is needed.
+      if (useLegacyPath) payload.contactCenterEnabled = true;
 
       let result;
+      const agentPutUrl = useLegacyPath
+        ? `/organization/${this._orgId}/user/${agentId}`
+        : `/organization/${this._orgId}/v2/agent/${agentId}`;
       try {
-        result = await this._apiPut(`/organization/${this._orgId}/v2/agent/${agentId}`, payload);
+        result = await this._apiPut(agentPutUrl, payload);
       } catch (e) {
-        if (e.message.includes('404')) {
+        if (!useLegacyPath && e.message.includes('404')) {
+          // v2/agent PUT not supported on this org — fall back to /user/{id}
+          payload.contactCenterEnabled = true;
           result = await this._apiPut(`/organization/${this._orgId}/user/${agentId}`, payload);
         } else throw e;
       }
@@ -1747,7 +1758,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.2</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.3</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
