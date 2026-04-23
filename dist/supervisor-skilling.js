@@ -27,7 +27,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       font-family: 'CiscoSansTT', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 13px;
       color: #1a1a2e;
-      background: #f4f5f7;
+      background: #F9FAFB;
       box-sizing: border-box;
       overflow: hidden;
     }
@@ -43,7 +43,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     }
 
     .header {
-      background: linear-gradient(135deg, #0d274d 0%, #00bceb 100%);
+      background: linear-gradient(135deg, #EC4899 0%, #9333EA 50%, #0EA5E9 100%);
       color: #fff;
       padding: 12px 20px;
       display: flex;
@@ -123,8 +123,8 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     }
 
     select:focus, input[type="text"]:focus {
-      border-color: #00bceb;
-      box-shadow: 0 0 0 3px rgba(0,188,235,0.15);
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
     }
 
     .search-input { width: 200px; }
@@ -132,8 +132,8 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     .spacer { flex: 1; }
 
     .stats-pill {
-      background: #eef2ff;
-      color: #4338ca;
+      background: #F5F3FF;
+      color: #5B21B6;
       border-radius: 20px;
       padding: 3px 10px;
       font-size: 11px;
@@ -142,8 +142,8 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
 
     /* ── Bulk action bar ── */
     .bulk-bar {
-      background: #eff6ff;
-      border-bottom: 1px solid #bfdbfe;
+      background: #F5F3FF;
+      border-bottom: 1px solid #DDD6FE;
       padding: 8px 20px;
       display: flex;
       align-items: center;
@@ -154,7 +154,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
 
     .bulk-bar .selected-count {
       font-weight: 700;
-      color: #1d4ed8;
+      color: #7C3AED;
     }
 
     .bulk-bar select { min-width: 220px; }
@@ -173,10 +173,10 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     }
 
     .btn-primary {
-      background: #0d274d;
+      background: #7C3AED;
       color: #fff;
     }
-    .btn-primary:hover { background: #1a3a66; }
+    .btn-primary:hover { background: #6D28D9; }
     .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
 
     .btn-danger {
@@ -234,7 +234,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     th.col-email { min-width: 180px; }
     th.col-team  { min-width: 130px; }
     th.col-profile { min-width: 200px; }
-    th.col-skills { min-width: 160px; }
+    th.col-skills { min-width: 200px; }
     th.col-actions { width: 80px; text-align: center; }
 
     tbody tr {
@@ -243,7 +243,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     }
 
     tbody tr:hover { background: #f8fafc; }
-    tbody tr.selected { background: #eff6ff; }
+    tbody tr.selected { background: #F5F3FF; }
     tbody tr.saving { opacity: 0.6; }
 
     td {
@@ -304,25 +304,49 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       font-size: 11px;
     }
 
-    .skill-pills {
+    /* ── Skill definitions column ── */
+    .skill-defs {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 3px;
-      max-width: 240px;
+      max-width: 260px;
     }
 
-    .skill-pill {
-      background: #f3f4f6;
+    .skill-def-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+
+    .skill-def-name {
+      flex: 1;
       color: #374151;
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 10px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .skill-pill .lvl {
-      color: #00bceb;
+    .skill-def-lvl {
+      background: #EDE9FE;
+      color: #5B21B6;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10px;
       font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .skill-def-bool {
+      color: #16a34a;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .skill-def-more {
+      font-size: 10px;
+      color: #9ca3af;
+      font-style: italic;
     }
 
     /* ── Actions column ── */
@@ -345,14 +369,14 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       transition: all 0.12s;
     }
     .icon-btn:hover { background: #e5e7eb; color: #1a1a2e; }
-    .icon-btn.edit:hover { background: #dbeafe; color: #1d4ed8; }
+    .icon-btn.edit:hover { background: #EDE9FE; color: #7C3AED; }
 
     .saving-spinner {
       display: inline-block;
       width: 14px;
       height: 14px;
       border: 2px solid #d1d5db;
-      border-top-color: #00bceb;
+      border-top-color: #7C3AED;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -383,7 +407,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, #0d274d, #00bceb);
+      background: linear-gradient(90deg, #EC4899, #9333EA, #0EA5E9);
       border-radius: 4px;
       animation: progress-anim 1.5s ease-in-out infinite;
     }
@@ -411,7 +435,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     }
 
     .modal-header {
-      background: #0d274d;
+      background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%);
       color: #fff;
       padding: 14px 20px;
       display: flex;
@@ -499,7 +523,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     .proficiency-bar {
       height: 100%;
       border-radius: 3px;
-      background: linear-gradient(90deg, #00bceb, #0d274d);
+      background: linear-gradient(90deg, #7C3AED, #9333EA);
     }
 
     .proficiency-label {
@@ -507,7 +531,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       text-align: right;
       font-size: 11px;
       font-weight: 700;
-      color: #0d274d;
+      color: #7C3AED;
       flex-shrink: 0;
     }
 
@@ -527,7 +551,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     .direct-skills-toggle {
       background: none;
       border: none;
-      color: #00bceb;
+      color: #7C3AED;
       font-size: 12px;
       cursor: pointer;
       padding: 0;
@@ -540,7 +564,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
     .skill-row-name { flex: 1; font-size: 12px; font-weight: 500; }
     .skill-row input[type="range"] {
       width: 120px;
-      accent-color: #00bceb;
+      accent-color: #7C3AED;
       cursor: pointer;
     }
     .skill-row .lvl-display {
@@ -548,7 +572,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       text-align: center;
       font-size: 12px;
       font-weight: 700;
-      color: #0d274d;
+      color: #7C3AED;
     }
 
     /* ── Notification toast ── */
@@ -582,7 +606,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
 
     .toast.success { border-left: 4px solid #22c55e; }
     .toast.error   { border-left: 4px solid #ef4444; }
-    .toast.info    { border-left: 4px solid #00bceb; }
+    .toast.info    { border-left: 4px solid #7C3AED; }
 
     .toast-icon { font-size: 16px; flex-shrink: 0; }
     .toast-msg  { flex: 1; }
@@ -592,7 +616,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       width: 15px;
       height: 15px;
       cursor: pointer;
-      accent-color: #0d274d;
+      accent-color: #7C3AED;
     }
 
     /* ── Animations ── */
@@ -615,7 +639,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
       from { opacity: 0; transform: translateX(30px); }
       to   { opacity: 1; transform: translateX(0); }
     }
-  `;static properties={_loading:{state:!0},_loadingMsg:{state:!0},_error:{state:!0},_agents:{state:!0},_teams:{state:!0},_skillProfiles:{state:!0},_skills:{state:!0},_selectedTeam:{state:!0},_searchQuery:{state:!0},_selectedAgents:{state:!0},_showModal:{state:!0},_modalAgent:{state:!0},_modalProfileId:{state:!0},_showDirectEdit:{state:!0},_directSkills:{state:!0},_bulkProfileId:{state:!0},_toasts:{state:!0},_orgId:{state:!0},_token:{state:!0},_savingAgents:{state:!0},_apiBaseUrl:{state:!0}};constructor(){super(),this._loading=!1,this._loadingMsg="",this._error=null,this._agents=[],this._teams=[],this._skillProfiles=[],this._skills=[],this._selectedTeam="__all__",this._searchQuery="",this._selectedAgents=new Set,this._showModal=!1,this._modalAgent=null,this._modalProfileId="",this._showDirectEdit=!1,this._directSkills={},this._bulkProfileId="",this._toasts=[],this._orgId=null,this._token=null,this._savingAgents=new Set,this._apiBaseUrl="https://api.wxcc-us1.cisco.com",this._sdkLogger=null,this._toastTimer=null}connectedCallback(){super.connectedCallback(),this._initSDK()}async _initSDK(){this._loading=!0,this._loadingMsg="Connecting to Webex Contact Center…",this._error=null,console.log("[skilling] v1.3.0 — initSDK start");try{if(await le.Desktop.config.init({widgetName:"supervisor-skilling-widget",widgetProvider:"custom"}),this._token=await this._resolveToken(),console.log("[skilling] token →",this._token?this._token.slice(0,30)+"…":"null"),!this._token)throw new Error("Cannot retrieve access token. Ensure you are logged in to Supervisor Desktop.");if(this._orgId=await this._resolveOrgId(),console.log("[skilling] orgId →",this._orgId),!this._orgId)throw new Error("Cannot determine org ID — check DevTools console for [skilling] entries.");await this._fetchAll()}catch(e){this._error=e.message,console.error("[supervisor-skilling]",e)}finally{this._loading=!1}}async _resolveToken(){try{const e=await le.Desktop.actions.getToken();if(e)return console.log("[skilling] token: Desktop.actions.getToken()"),e}catch(e){console.warn("[skilling] Desktop.actions.getToken() threw:",e)}const e=["access_token","accessToken","wxcc_token","id_token","token","bearerToken"];for(const t of[localStorage,sessionStorage])for(const n of e)try{const e=t.getItem(n);if(e&&"null"!==e&&"undefined"!==e)return console.log("[skilling] token: storage key =",n),e}catch(e){}return console.warn("[skilling] token: exhausted all sources"),null}async _resolveOrgId(){if(window.wxcc?.orgId)return console.log("[skilling] orgId: window.wxcc"),window.wxcc.orgId;const e=this._orgIdFromUrl();if(e)return console.log("[skilling] orgId: URL"),e;try{const e=await fetch("https://webexapis.com/v1/people/me",{headers:{Authorization:`Bearer ${this._token}`}});if(e.ok){const{orgId:t}=await e.json();if(t){const e=atob(t).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);if(e)return console.log("[skilling] orgId: Webex people/me API"),e[1]}}}catch(e){console.warn("[skilling] Webex people/me failed:",e)}return console.warn("[skilling] orgId: exhausted all sources"),null}_orgIdFromUrl(){const e=window.location.href.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\//i);return e?e[1]:null}async _apiGet(e,t={}){const n=new URL(`${this._apiBaseUrl}${e}`);Object.entries(t).forEach(([e,t])=>n.searchParams.set(e,String(t)));const i=await fetch(n.toString(),{headers:{Authorization:`Bearer ${this._token}`,Accept:"application/json"}});if(!i.ok){const t=await i.text().catch(()=>i.statusText);throw new Error(`GET ${e} → ${i.status}: ${t}`)}return i.json()}async _apiPut(e,t){const n=await fetch(`${this._apiBaseUrl}${e}`,{method:"PUT",headers:{Authorization:`Bearer ${this._token}`,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(t)});if(!n.ok){const t=await n.text().catch(()=>n.statusText);throw new Error(`PUT ${e} → ${n.status}: ${t}`)}return n.json()}async _fetchPages(e,t={}){const n=[];let i=0;for(;;){const r=await this._apiGet(e,{...t,page:i,pageSize:100}),o=Array.isArray(r)?r:r.data??r.records??[];if(!o.length)break;n.push(...o);const s=!!r.meta?.links?.next,a=r.meta?.totalCount??r.totalCount??r.total??null;if(!s&&(null===a||n.length>=a))break;if(!s)break;i++}return n}async _fetchPagesWithFallback(e,t,n={}){try{return await this._fetchPages(e,n)}catch(i){if(i.message.includes("404")&&t)return console.log(`[skilling] ${e} → 404, trying ${t}`),this._fetchPages(t,n);throw i}}async _fetchAll(){this._loading=!0,this._loadingMsg="Loading teams and skill profiles…";try{await Promise.all([this._fetchTeams(),this._fetchSkillProfiles(),this._fetchSkills()]),this._loadingMsg="Loading agents…",await this._fetchAgents(),this._toast("Data loaded successfully","success")}catch(e){this._error=e.message,console.error("[supervisor-skilling]",e)}finally{this._loading=!1}}async _fetchTeams(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/team`,`/organization/${this._orgId}/team`);this._teams=e.sort((e,t)=>(e.name??"").localeCompare(t.name??""))}async _fetchSkillProfiles(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/skill-profile`,`/organization/${this._orgId}/skill-profile`);this._skillProfiles=e.sort((e,t)=>(e.name??"").localeCompare(t.name??""))}async _fetchSkills(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/skill`,`/organization/${this._orgId}/skill`);this._skills=e}async _fetchAgents(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/agent`,`/organization/${this._orgId}/v2/user`);this._agents=e.filter(e=>!e.agentType||"AGENT"===e.agentType||"AGENT"===e.type||"AGENT"===e.userType).sort((e,t)=>(e.name??e.email??"").localeCompare(t.name??t.email??"")),console.log("[skilling] loaded",this._agents.length,"agents")}async _updateAgent(e,t,n=null){this._savingAgents=new Set([...this._savingAgents,e]);try{let i;try{i=await this._apiGet(`/organization/${this._orgId}/v2/agent/${e}`)}catch(t){if(!t.message.includes("404"))throw t;i=await this._apiGet(`/organization/${this._orgId}/v2/user/${e}`)}const r=i.data??i,o={...r,skillProfileId:t||null};let s;n&&(o.skillProfile={...r.skillProfile,skills:n});try{s=await this._apiPut(`/organization/${this._orgId}/v2/agent/${e}`,o)}catch(t){if(!t.message.includes("404"))throw t;s=await this._apiPut(`/organization/${this._orgId}/v2/user/${e}`,o)}const a=s.data??s;this._agents=this._agents.map(n=>n.id===e?{...n,skillProfileId:a.skillProfileId??t}:n)}finally{const t=new Set(this._savingAgents);t.delete(e),this._savingAgents=t}}async _bulkUpdate(){if(!this._bulkProfileId||!this._selectedAgents.size)return;const e=[...this._selectedAgents],t=this._profileName(this._bulkProfileId);let n=0,i=0;for(const t of e)try{await this._updateAgent(t,this._bulkProfileId),n++}catch(e){i++,console.error("[supervisor-skilling] bulk update error for",t,e)}0===i?this._toast(`${n} agent(s) updated to "${t}"`,"success"):this._toast(`${n} succeeded, ${i} failed — check console`,"error"),this._selectedAgents=new Set,this._bulkProfileId=""}_openModal(e){this._modalAgent=e,this._modalProfileId=e.skillProfileId??"",this._showDirectEdit=!1,this._directSkills=this._defaultDirectSkills(e.skillProfileId),this._showModal=!0}_closeModal(){this._showModal=!1,this._modalAgent=null,this._showDirectEdit=!1}_defaultDirectSkills(e){const t=this._skillProfiles.find(t=>t.id===e);if(!t?.skills)return{};const n={};for(const e of t.skills)n[e.skillId]=e.competencyLevel??e.proficiency??5;return n}async _saveModal(){const e=this._modalAgent;if(!e)return;const t=this._modalProfileId,n=this._showDirectEdit?Object.entries(this._directSkills).map(([e,t])=>({skillId:e,competencyLevel:Number(t)})):null;try{await this._updateAgent(e.id,t,n);const i=t?this._profileName(t):"None";this._toast(`${e.name??e.email}: profile updated to "${i}"`,"success"),this._closeModal()}catch(e){this._toast(`Update failed: ${e.message}`,"error")}}_toast(e,t="info"){const n=Date.now();this._toasts=[...this._toasts,{id:n,msg:e,type:t}],setTimeout(()=>{this._toasts=this._toasts.filter(e=>e.id!==n)},4e3)}get _filteredAgents(){const e=this._searchQuery.toLowerCase().trim(),t=this._selectedTeam;return this._agents.filter(n=>{const i="__all__"===t||n.teamId===t||Array.isArray(n.teamIds)&&n.teamIds.includes(t),r=!e||(n.name??"").toLowerCase().includes(e)||(n.email??"").toLowerCase().includes(e);return i&&r})}_teamName(e){return this._teams.find(t=>t.id===e)?.name??e??"—"}_profileName(e){return this._skillProfiles.find(t=>t.id===e)?.name??e??"—"}_profileSkills(e){return this._skillProfiles.find(t=>t.id===e)?.skills??[]}_skillName(e){return this._skills.find(t=>t.id===e)?.name??e??"—"}_agentTeamName(e){const t=e.teamId??(Array.isArray(e.teamIds)?e.teamIds[0]:null);return t?this._teamName(t):"—"}_onTeamChange(e){this._selectedTeam=e.target.value}_onSearch(e){this._searchQuery=e.target.value}_onSelectAgent(e,t){const n=new Set(this._selectedAgents);t?n.add(e):n.delete(e),this._selectedAgents=n}_onSelectAll(e){this._selectedAgents=e?new Set(this._filteredAgents.map(e=>e.id)):new Set}_onSkillSlider(e,t){this._directSkills={...this._directSkills,[e]:Number(t)}}render(){return F`
+  `;static properties={_loading:{state:!0},_loadingMsg:{state:!0},_error:{state:!0},_agents:{state:!0},_teams:{state:!0},_skillProfiles:{state:!0},_skills:{state:!0},_selectedTeam:{state:!0},_searchQuery:{state:!0},_selectedAgents:{state:!0},_showModal:{state:!0},_modalAgent:{state:!0},_modalProfileId:{state:!0},_showDirectEdit:{state:!0},_directSkills:{state:!0},_bulkProfileId:{state:!0},_toasts:{state:!0},_orgId:{state:!0},_token:{state:!0},_savingAgents:{state:!0},_apiBaseUrl:{state:!0}};constructor(){super(),this._loading=!1,this._loadingMsg="",this._error=null,this._agents=[],this._teams=[],this._skillProfiles=[],this._skills=[],this._selectedTeam="__all__",this._searchQuery="",this._selectedAgents=new Set,this._showModal=!1,this._modalAgent=null,this._modalProfileId="",this._showDirectEdit=!1,this._directSkills={},this._bulkProfileId="",this._toasts=[],this._orgId=null,this._token=null,this._savingAgents=new Set,this._apiBaseUrl="https://api.wxcc-us1.cisco.com",this._sdkLogger=null,this._toastTimer=null}connectedCallback(){super.connectedCallback(),this._initSDK()}async _initSDK(){this._loading=!0,this._loadingMsg="Connecting to Webex Contact Center…",this._error=null,console.log("[skilling] v1.4.0 — initSDK start");try{if(await le.Desktop.config.init({widgetName:"supervisor-skilling-widget",widgetProvider:"custom"}),this._token=await this._resolveToken(),console.log("[skilling] token →",this._token?this._token.slice(0,30)+"…":"null"),!this._token)throw new Error("Cannot retrieve access token. Ensure you are logged in to Supervisor Desktop.");if(this._orgId=await this._resolveOrgId(),console.log("[skilling] orgId →",this._orgId),!this._orgId)throw new Error("Cannot determine org ID — check DevTools console for [skilling] entries.");await this._fetchAll()}catch(e){this._error=e.message,console.error("[supervisor-skilling]",e)}finally{this._loading=!1}}async _resolveToken(){try{const e=await le.Desktop.actions.getToken();if(e)return console.log("[skilling] token: Desktop.actions.getToken()"),e}catch(e){console.warn("[skilling] Desktop.actions.getToken() threw:",e)}const e=["access_token","accessToken","wxcc_token","id_token","token","bearerToken"];for(const t of[localStorage,sessionStorage])for(const n of e)try{const e=t.getItem(n);if(e&&"null"!==e&&"undefined"!==e)return console.log("[skilling] token: storage key =",n),e}catch(e){}return console.warn("[skilling] token: exhausted all sources"),null}async _resolveOrgId(){if(window.wxcc?.orgId)return console.log("[skilling] orgId: window.wxcc"),window.wxcc.orgId;const e=this._orgIdFromUrl();if(e)return console.log("[skilling] orgId: URL"),e;try{const e=await fetch("https://webexapis.com/v1/people/me",{headers:{Authorization:`Bearer ${this._token}`}});if(e.ok){const{orgId:t}=await e.json();if(t){const e=atob(t).match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);if(e)return console.log("[skilling] orgId: Webex people/me API"),e[1]}}}catch(e){console.warn("[skilling] Webex people/me failed:",e)}return console.warn("[skilling] orgId: exhausted all sources"),null}_orgIdFromUrl(){const e=window.location.href.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\//i);return e?e[1]:null}async _apiGet(e,t={}){const n=new URL(`${this._apiBaseUrl}${e}`);Object.entries(t).forEach(([e,t])=>n.searchParams.set(e,String(t)));const i=await fetch(n.toString(),{headers:{Authorization:`Bearer ${this._token}`,Accept:"application/json"}});if(!i.ok){const t=await i.text().catch(()=>i.statusText);throw new Error(`GET ${e} → ${i.status}: ${t}`)}return i.json()}async _apiPut(e,t){const n=await fetch(`${this._apiBaseUrl}${e}`,{method:"PUT",headers:{Authorization:`Bearer ${this._token}`,"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify(t)});if(!n.ok){const t=await n.text().catch(()=>n.statusText);throw new Error(`PUT ${e} → ${n.status}: ${t}`)}return n.json()}async _fetchPages(e,t={}){const n=[];let i=0;for(;;){const r=await this._apiGet(e,{...t,page:i,pageSize:100}),o=Array.isArray(r)?r:r.data??r.records??[];if(!o.length)break;n.push(...o);const s=!!r.meta?.links?.next,a=r.meta?.totalCount??r.totalCount??r.total??null;if(!s&&(null===a||n.length>=a))break;if(!s)break;i++}return n}async _fetchPagesWithFallback(e,t,n={}){try{return await this._fetchPages(e,n)}catch(i){if(i.message.includes("404")&&t)return console.log(`[skilling] ${e} → 404, trying ${t}`),this._fetchPages(t,n);throw i}}async _fetchAll(){this._loading=!0,this._loadingMsg="Loading teams and skill profiles…";try{await Promise.all([this._fetchTeams(),this._fetchSkillProfiles(),this._fetchSkills()]),this._loadingMsg="Loading agents…",await this._fetchAgents(),this._toast("Data loaded successfully","success")}catch(e){this._error=e.message,console.error("[supervisor-skilling]",e)}finally{this._loading=!1}}async _fetchTeams(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/team`,`/organization/${this._orgId}/team`);this._teams=e.sort((e,t)=>(e.name??"").localeCompare(t.name??""))}async _fetchSkillProfiles(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/skill-profile`,`/organization/${this._orgId}/skill-profile`);this._skillProfiles=e.sort((e,t)=>(e.name??"").localeCompare(t.name??""))}async _fetchSkills(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/skill`,`/organization/${this._orgId}/skill`);this._skills=e}async _fetchAgents(){const e=await this._fetchPagesWithFallback(`/organization/${this._orgId}/v2/agent`,`/organization/${this._orgId}/v2/user`);this._agents=e.filter(e=>!e.agentType||"AGENT"===e.agentType||"AGENT"===e.type||"AGENT"===e.userType).sort((e,t)=>{const n=this._agentNameFrom(e),i=this._agentNameFrom(t);return n.localeCompare(i)}),console.log("[skilling] loaded",this._agents.length,"agents")}async _updateAgent(e,t,n=null){this._savingAgents=new Set([...this._savingAgents,e]);try{let i;try{i=await this._apiGet(`/organization/${this._orgId}/v2/agent/${e}`)}catch(t){if(!t.message.includes("404"))throw t;i=await this._apiGet(`/organization/${this._orgId}/v2/user/${e}`)}const r=i.data??i,o={...r,skillProfileId:t||null};let s;n&&(o.skillProfile={...r.skillProfile,skills:n});try{s=await this._apiPut(`/organization/${this._orgId}/v2/agent/${e}`,o)}catch(t){if(!t.message.includes("404"))throw t;s=await this._apiPut(`/organization/${this._orgId}/v2/user/${e}`,o)}const a=s.data??s;this._agents=this._agents.map(n=>n.id===e?{...n,skillProfileId:a.skillProfileId??t}:n)}finally{const t=new Set(this._savingAgents);t.delete(e),this._savingAgents=t}}async _bulkUpdate(){if(!this._bulkProfileId||!this._selectedAgents.size)return;const e=[...this._selectedAgents],t=this._profileName(this._bulkProfileId);let n=0,i=0;for(const t of e)try{await this._updateAgent(t,this._bulkProfileId),n++}catch(e){i++,console.error("[supervisor-skilling] bulk update error for",t,e)}0===i?this._toast(`${n} agent(s) updated to "${t}"`,"success"):this._toast(`${n} succeeded, ${i} failed — check console`,"error"),this._selectedAgents=new Set,this._bulkProfileId=""}_openModal(e){this._modalAgent=e,this._modalProfileId=e.skillProfileId??"",this._showDirectEdit=!1,this._directSkills=this._defaultDirectSkills(e.skillProfileId),this._showModal=!0}_closeModal(){this._showModal=!1,this._modalAgent=null,this._showDirectEdit=!1}_defaultDirectSkills(e){const t=this._skillProfiles.find(t=>t.id===e);if(!t?.skills)return{};const n={};for(const e of t.skills)n[e.skillId]=e.competencyLevel??e.proficiency??5;return n}async _saveModal(){const e=this._modalAgent;if(!e)return;const t=this._modalProfileId,n=this._showDirectEdit?Object.entries(this._directSkills).map(([e,t])=>({skillId:e,competencyLevel:Number(t)})):null;try{await this._updateAgent(e.id,t,n);const i=t?this._profileName(t):"None";this._toast(`${this._agentName(e)}: profile updated to "${i}"`,"success"),this._closeModal()}catch(e){this._toast(`Update failed: ${e.message}`,"error")}}_toast(e,t="info"){const n=Date.now();this._toasts=[...this._toasts,{id:n,msg:e,type:t}],setTimeout(()=>{this._toasts=this._toasts.filter(e=>e.id!==n)},4e3)}_agentNameFrom(e){if(e.name)return e.name;const t=[e.firstName,e.lastName].filter(Boolean).join(" ").trim();return t||(e.displayName||e.userName||e.email||"")}_agentName(e){return this._agentNameFrom(e)}get _filteredAgents(){const e=this._searchQuery.toLowerCase().trim(),t=this._selectedTeam;return this._agents.filter(n=>{const i="__all__"===t||n.teamId===t||Array.isArray(n.teamIds)&&n.teamIds.includes(t),r=!e||this._agentNameFrom(n).toLowerCase().includes(e)||(n.email??"").toLowerCase().includes(e);return i&&r})}_teamName(e){return this._teams.find(t=>t.id===e)?.name??e??"—"}_profileName(e){return this._skillProfiles.find(t=>t.id===e)?.name??e??"—"}_profileSkills(e){return this._skillProfiles.find(t=>t.id===e)?.skills??[]}_skillName(e){return this._skills.find(t=>t.id===e)?.name??e??"—"}_skillType(e){return this._skills.find(t=>t.id===e)?.type??this._skills.find(t=>t.id===e)?.skillType??"PROFICIENCY"}_agentTeamName(e){const t=e.teamId??(Array.isArray(e.teamIds)?e.teamIds[0]:null);return t?this._teamName(t):"—"}_onTeamChange(e){this._selectedTeam=e.target.value}_onSearch(e){this._searchQuery=e.target.value}_onSelectAgent(e,t){const n=new Set(this._selectedAgents);t?n.add(e):n.delete(e),this._selectedAgents=n}_onSelectAll(e){this._selectedAgents=e?new Set(this._filteredAgents.map(e=>e.id)):new Set}_onSkillSlider(e,t){this._directSkills={...this._directSkills,[e]:Number(t)}}render(){return F`
       <div class="app">
         ${this._renderHeader()}
         ${this._loading?this._renderLoading():this._error?this._renderError():this._renderMain()}
@@ -681,7 +705,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
                     <th class="col-name">Agent</th>
                     <th class="col-team">Team</th>
                     <th class="col-profile">Skill Profile</th>
-                    <th class="col-skills">Top Skills</th>
+                    <th class="col-skills">Skills</th>
                     <th class="col-actions">Edit</th>
                   </tr>
                 </thead>
@@ -745,7 +769,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
           Clear selection
         </button>
       </div>
-    `}_renderRow(e){const t=this._savingAgents.has(e.id),n=this._selectedAgents.has(e.id),i=e.skillProfileId,r=i?this._profileName(i):null,o=i?this._profileSkills(i):[],s=o.slice(0,3);return F`
+    `}_renderRow(e){const t=this._savingAgents.has(e.id),n=this._selectedAgents.has(e.id),i=e.skillProfileId,r=i?this._profileName(i):null,o=i?this._profileSkills(i):[],s=o.slice(0,4),a=o.length-s.length;return F`
       <tr class="${n?"selected":""} ${t?"saving":""}">
         <td>
           <input
@@ -756,7 +780,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
           />
         </td>
         <td>
-          <div class="agent-name">${e.name??"(no name)"}</div>
+          <div class="agent-name">${this._agentName(e)}</div>
           <div class="agent-email">${e.email??""}</div>
         </td>
         <td>
@@ -767,14 +791,14 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
         </td>
         <td>
           ${s.length?F`
-                <div class="skill-pills">
-                  ${s.map(e=>F`
-                    <span class="skill-pill">
-                      ${this._skillName(e.skillId)}
-                      <span class="lvl"> ${e.competencyLevel??e.proficiency??"?"}</span>
-                    </span>
-                  `)}
-                  ${o.length>3?F`<span class="skill-pill">+${o.length-3} more</span>`:""}
+                <div class="skill-defs">
+                  ${s.map(e=>{const t=this._skillType(e.skillId),n="BOOLEAN"===t||"BOOL"===t,i=e.competencyLevel??e.proficiency;return F`
+                      <div class="skill-def-row">
+                        <span class="skill-def-name">${this._skillName(e.skillId)}</span>
+                        ${n?F`<span class="skill-def-bool">✓</span>`:null!=i?F`<span class="skill-def-lvl">${i}/10</span>`:""}
+                      </div>
+                    `})}
+                  ${a>0?F`<span class="skill-def-more">+${a} more</span>`:""}
                 </div>`:F`<span class="skills-count" style="color:#d1d5db">—</span>`}
         </td>
         <td>
@@ -800,7 +824,7 @@ const E=globalThis,k=e=>e,x=E.trustedTypes,_=x?x.createPolicy("lit-html",{create
           <div class="modal-body">
             <!-- Agent info card -->
             <div class="agent-card">
-              <div class="name">${e?.name??e?.email??"(unknown)"}</div>
+              <div class="name">${e?this._agentName(e):"(unknown)"}</div>
               <div class="meta">${e?.email??""} &nbsp;|&nbsp; ${this._agentTeamName(e??{})}</div>
               <div class="current-profile">
                 <span style="color:#6b7280;font-size:11px">Current profile:</span>

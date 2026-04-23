@@ -13,7 +13,7 @@ class SupervisorSkillingWidget extends LitElement {
       font-family: 'CiscoSansTT', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 13px;
       color: #1a1a2e;
-      background: #f4f5f7;
+      background: #F9FAFB;
       box-sizing: border-box;
       overflow: hidden;
     }
@@ -29,7 +29,7 @@ class SupervisorSkillingWidget extends LitElement {
     }
 
     .header {
-      background: linear-gradient(135deg, #0d274d 0%, #00bceb 100%);
+      background: linear-gradient(135deg, #EC4899 0%, #9333EA 50%, #0EA5E9 100%);
       color: #fff;
       padding: 12px 20px;
       display: flex;
@@ -109,8 +109,8 @@ class SupervisorSkillingWidget extends LitElement {
     }
 
     select:focus, input[type="text"]:focus {
-      border-color: #00bceb;
-      box-shadow: 0 0 0 3px rgba(0,188,235,0.15);
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
     }
 
     .search-input { width: 200px; }
@@ -118,8 +118,8 @@ class SupervisorSkillingWidget extends LitElement {
     .spacer { flex: 1; }
 
     .stats-pill {
-      background: #eef2ff;
-      color: #4338ca;
+      background: #F5F3FF;
+      color: #5B21B6;
       border-radius: 20px;
       padding: 3px 10px;
       font-size: 11px;
@@ -128,8 +128,8 @@ class SupervisorSkillingWidget extends LitElement {
 
     /* ── Bulk action bar ── */
     .bulk-bar {
-      background: #eff6ff;
-      border-bottom: 1px solid #bfdbfe;
+      background: #F5F3FF;
+      border-bottom: 1px solid #DDD6FE;
       padding: 8px 20px;
       display: flex;
       align-items: center;
@@ -140,7 +140,7 @@ class SupervisorSkillingWidget extends LitElement {
 
     .bulk-bar .selected-count {
       font-weight: 700;
-      color: #1d4ed8;
+      color: #7C3AED;
     }
 
     .bulk-bar select { min-width: 220px; }
@@ -159,10 +159,10 @@ class SupervisorSkillingWidget extends LitElement {
     }
 
     .btn-primary {
-      background: #0d274d;
+      background: #7C3AED;
       color: #fff;
     }
-    .btn-primary:hover { background: #1a3a66; }
+    .btn-primary:hover { background: #6D28D9; }
     .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
 
     .btn-danger {
@@ -220,7 +220,7 @@ class SupervisorSkillingWidget extends LitElement {
     th.col-email { min-width: 180px; }
     th.col-team  { min-width: 130px; }
     th.col-profile { min-width: 200px; }
-    th.col-skills { min-width: 160px; }
+    th.col-skills { min-width: 200px; }
     th.col-actions { width: 80px; text-align: center; }
 
     tbody tr {
@@ -229,7 +229,7 @@ class SupervisorSkillingWidget extends LitElement {
     }
 
     tbody tr:hover { background: #f8fafc; }
-    tbody tr.selected { background: #eff6ff; }
+    tbody tr.selected { background: #F5F3FF; }
     tbody tr.saving { opacity: 0.6; }
 
     td {
@@ -290,25 +290,49 @@ class SupervisorSkillingWidget extends LitElement {
       font-size: 11px;
     }
 
-    .skill-pills {
+    /* ── Skill definitions column ── */
+    .skill-defs {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 3px;
-      max-width: 240px;
+      max-width: 260px;
     }
 
-    .skill-pill {
-      background: #f3f4f6;
+    .skill-def-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+    }
+
+    .skill-def-name {
+      flex: 1;
       color: #374151;
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 10px;
       white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .skill-pill .lvl {
-      color: #00bceb;
+    .skill-def-lvl {
+      background: #EDE9FE;
+      color: #5B21B6;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-size: 10px;
       font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .skill-def-bool {
+      color: #16a34a;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .skill-def-more {
+      font-size: 10px;
+      color: #9ca3af;
+      font-style: italic;
     }
 
     /* ── Actions column ── */
@@ -331,14 +355,14 @@ class SupervisorSkillingWidget extends LitElement {
       transition: all 0.12s;
     }
     .icon-btn:hover { background: #e5e7eb; color: #1a1a2e; }
-    .icon-btn.edit:hover { background: #dbeafe; color: #1d4ed8; }
+    .icon-btn.edit:hover { background: #EDE9FE; color: #7C3AED; }
 
     .saving-spinner {
       display: inline-block;
       width: 14px;
       height: 14px;
       border: 2px solid #d1d5db;
-      border-top-color: #00bceb;
+      border-top-color: #7C3AED;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
@@ -369,7 +393,7 @@ class SupervisorSkillingWidget extends LitElement {
 
     .progress-bar {
       height: 100%;
-      background: linear-gradient(90deg, #0d274d, #00bceb);
+      background: linear-gradient(90deg, #EC4899, #9333EA, #0EA5E9);
       border-radius: 4px;
       animation: progress-anim 1.5s ease-in-out infinite;
     }
@@ -397,7 +421,7 @@ class SupervisorSkillingWidget extends LitElement {
     }
 
     .modal-header {
-      background: #0d274d;
+      background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%);
       color: #fff;
       padding: 14px 20px;
       display: flex;
@@ -485,7 +509,7 @@ class SupervisorSkillingWidget extends LitElement {
     .proficiency-bar {
       height: 100%;
       border-radius: 3px;
-      background: linear-gradient(90deg, #00bceb, #0d274d);
+      background: linear-gradient(90deg, #7C3AED, #9333EA);
     }
 
     .proficiency-label {
@@ -493,7 +517,7 @@ class SupervisorSkillingWidget extends LitElement {
       text-align: right;
       font-size: 11px;
       font-weight: 700;
-      color: #0d274d;
+      color: #7C3AED;
       flex-shrink: 0;
     }
 
@@ -513,7 +537,7 @@ class SupervisorSkillingWidget extends LitElement {
     .direct-skills-toggle {
       background: none;
       border: none;
-      color: #00bceb;
+      color: #7C3AED;
       font-size: 12px;
       cursor: pointer;
       padding: 0;
@@ -526,7 +550,7 @@ class SupervisorSkillingWidget extends LitElement {
     .skill-row-name { flex: 1; font-size: 12px; font-weight: 500; }
     .skill-row input[type="range"] {
       width: 120px;
-      accent-color: #00bceb;
+      accent-color: #7C3AED;
       cursor: pointer;
     }
     .skill-row .lvl-display {
@@ -534,7 +558,7 @@ class SupervisorSkillingWidget extends LitElement {
       text-align: center;
       font-size: 12px;
       font-weight: 700;
-      color: #0d274d;
+      color: #7C3AED;
     }
 
     /* ── Notification toast ── */
@@ -568,7 +592,7 @@ class SupervisorSkillingWidget extends LitElement {
 
     .toast.success { border-left: 4px solid #22c55e; }
     .toast.error   { border-left: 4px solid #ef4444; }
-    .toast.info    { border-left: 4px solid #00bceb; }
+    .toast.info    { border-left: 4px solid #7C3AED; }
 
     .toast-icon { font-size: 16px; flex-shrink: 0; }
     .toast-msg  { flex: 1; }
@@ -578,7 +602,7 @@ class SupervisorSkillingWidget extends LitElement {
       width: 15px;
       height: 15px;
       cursor: pointer;
-      accent-color: #0d274d;
+      accent-color: #7C3AED;
     }
 
     /* ── Animations ── */
@@ -671,7 +695,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.3.0 — initSDK start');
+    console.log('[skilling] v1.4.0 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -889,7 +913,11 @@ class SupervisorSkillingWidget extends LitElement {
     );
     this._agents = rows
       .filter(a => !a.agentType || a.agentType === 'AGENT' || a.type === 'AGENT' || a.userType === 'AGENT')
-      .sort((a, b) => (a.name ?? a.email ?? '').localeCompare(b.name ?? b.email ?? ''));
+      .sort((a, b) => {
+        const nameA = this._agentNameFrom(a);
+        const nameB = this._agentNameFrom(b);
+        return nameA.localeCompare(nameB);
+      });
     console.log('[skilling] loaded', this._agents.length, 'agents');
   }
 
@@ -1008,7 +1036,7 @@ class SupervisorSkillingWidget extends LitElement {
     try {
       await this._updateAgent(agent.id, profileId, customSkills);
       const pName = profileId ? this._profileName(profileId) : 'None';
-      this._toast(`${agent.name ?? agent.email}: profile updated to "${pName}"`, 'success');
+      this._toast(`${this._agentName(agent)}: profile updated to "${pName}"`, 'success');
       this._closeModal();
     } catch (err) {
       this._toast(`Update failed: ${err.message}`, 'error');
@@ -1027,6 +1055,19 @@ class SupervisorSkillingWidget extends LitElement {
 
   // ─── Computed helpers ────────────────────────────────────────────────────
 
+  // Resolves a display name from whichever fields the API returns.
+  // Works as a static helper (no `this`) so it can be used during sort.
+  _agentNameFrom(agent) {
+    if (agent.name) return agent.name;
+    const full = [agent.firstName, agent.lastName].filter(Boolean).join(' ').trim();
+    if (full) return full;
+    return agent.displayName || agent.userName || agent.email || '';
+  }
+
+  _agentName(agent) {
+    return this._agentNameFrom(agent);
+  }
+
   get _filteredAgents() {
     const q    = this._searchQuery.toLowerCase().trim();
     const team = this._selectedTeam;
@@ -1039,7 +1080,7 @@ class SupervisorSkillingWidget extends LitElement {
 
       const matchSearch =
         !q ||
-        (a.name  ?? '').toLowerCase().includes(q) ||
+        this._agentNameFrom(a).toLowerCase().includes(q) ||
         (a.email ?? '').toLowerCase().includes(q);
 
       return matchTeam && matchSearch;
@@ -1060,6 +1101,10 @@ class SupervisorSkillingWidget extends LitElement {
 
   _skillName(skillId) {
     return this._skills.find(s => s.id === skillId)?.name ?? skillId ?? '—';
+  }
+
+  _skillType(skillId) {
+    return this._skills.find(s => s.id === skillId)?.type ?? this._skills.find(s => s.id === skillId)?.skillType ?? 'PROFICIENCY';
   }
 
   _agentTeamName(agent) {
@@ -1185,7 +1230,7 @@ class SupervisorSkillingWidget extends LitElement {
                     <th class="col-name">Agent</th>
                     <th class="col-team">Team</th>
                     <th class="col-profile">Skill Profile</th>
-                    <th class="col-skills">Top Skills</th>
+                    <th class="col-skills">Skills</th>
                     <th class="col-actions">Edit</th>
                   </tr>
                 </thead>
@@ -1263,12 +1308,13 @@ class SupervisorSkillingWidget extends LitElement {
   }
 
   _renderRow(agent) {
-    const isSaving   = this._savingAgents.has(agent.id);
-    const isSelected = this._selectedAgents.has(agent.id);
-    const profileId  = agent.skillProfileId;
+    const isSaving    = this._savingAgents.has(agent.id);
+    const isSelected  = this._selectedAgents.has(agent.id);
+    const profileId   = agent.skillProfileId;
     const profileName = profileId ? this._profileName(profileId) : null;
-    const skills     = profileId ? this._profileSkills(profileId) : [];
-    const topSkills  = skills.slice(0, 3);
+    const skills      = profileId ? this._profileSkills(profileId) : [];
+    const visibleSkills = skills.slice(0, 4);
+    const extraCount    = skills.length - visibleSkills.length;
 
     return html`
       <tr class="${isSelected ? 'selected' : ''} ${isSaving ? 'saving' : ''}">
@@ -1281,7 +1327,7 @@ class SupervisorSkillingWidget extends LitElement {
           />
         </td>
         <td>
-          <div class="agent-name">${agent.name ?? '(no name)'}</div>
+          <div class="agent-name">${this._agentName(agent)}</div>
           <div class="agent-email">${agent.email ?? ''}</div>
         </td>
         <td>
@@ -1293,17 +1339,26 @@ class SupervisorSkillingWidget extends LitElement {
             : html`<span class="profile-badge none">⚠ None assigned</span>`}
         </td>
         <td>
-          ${topSkills.length
+          ${visibleSkills.length
             ? html`
-                <div class="skill-pills">
-                  ${topSkills.map(s => html`
-                    <span class="skill-pill">
-                      ${this._skillName(s.skillId)}
-                      <span class="lvl"> ${s.competencyLevel ?? s.proficiency ?? '?'}</span>
-                    </span>
-                  `)}
-                  ${skills.length > 3
-                    ? html`<span class="skill-pill">+${skills.length - 3} more</span>`
+                <div class="skill-defs">
+                  ${visibleSkills.map(s => {
+                    const type = this._skillType(s.skillId);
+                    const isBoolean = type === 'BOOLEAN' || type === 'BOOL';
+                    const lvl = s.competencyLevel ?? s.proficiency;
+                    return html`
+                      <div class="skill-def-row">
+                        <span class="skill-def-name">${this._skillName(s.skillId)}</span>
+                        ${isBoolean
+                          ? html`<span class="skill-def-bool">✓</span>`
+                          : lvl != null
+                            ? html`<span class="skill-def-lvl">${lvl}/10</span>`
+                            : ''}
+                      </div>
+                    `;
+                  })}
+                  ${extraCount > 0
+                    ? html`<span class="skill-def-more">+${extraCount} more</span>`
                     : ''}
                 </div>`
             : html`<span class="skills-count" style="color:#d1d5db">—</span>`}
@@ -1343,7 +1398,7 @@ class SupervisorSkillingWidget extends LitElement {
           <div class="modal-body">
             <!-- Agent info card -->
             <div class="agent-card">
-              <div class="name">${agent?.name ?? agent?.email ?? '(unknown)'}</div>
+              <div class="name">${agent ? this._agentName(agent) : '(unknown)'}</div>
               <div class="meta">${agent?.email ?? ''} &nbsp;|&nbsp; ${this._agentTeamName(agent ?? {})}</div>
               <div class="current-profile">
                 <span style="color:#6b7280;font-size:11px">Current profile:</span>
