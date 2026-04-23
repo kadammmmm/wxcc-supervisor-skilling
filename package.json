@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "wxcc-supervisor-skilling",
   "version": "1.0.0",
   "description": "Webex Contact Center Supervisor Skilling Tool",

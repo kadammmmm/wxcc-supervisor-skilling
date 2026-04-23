@@ -9,6 +9,8 @@ export default {
     name: 'SupervisorSkilling',
     sourcemap: true
   },
+  // @wxcc-desktop/sdk is UMD-only and provided by the WxCC runtime as window.Desktop
+  external: ['@wxcc-desktop/sdk'],
   plugins: [
     resolve(),
     terser()

@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit';
-import { Desktop } from '@wxcc-desktop/sdk';
+
+// Desktop is injected as a global by the WxCC Desktop runtime (window.Desktop)
+const Desktop = window.Desktop;
 
 class SupervisorSkillingWidget extends LitElement {
 
