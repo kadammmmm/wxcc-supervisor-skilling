@@ -1385,7 +1385,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.8.1 — initSDK start');
+    console.log('[skilling] v1.8.2 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1650,6 +1650,10 @@ class SupervisorSkillingWidget extends LitElement {
       `/organization/${this._orgId}/skill`
     );
     this._skills = rows;
+    if (rows.length > 0) {
+      console.log('[skilling] skill sample keys:', JSON.stringify(Object.keys(rows[0])));
+      console.log('[skilling] skill sample:', JSON.stringify(rows[0]));
+    }
   }
 
   async _fetchAgents() {
@@ -1730,17 +1734,37 @@ class SupervisorSkillingWidget extends LitElement {
   // ─── Skill Profile Management ────────────────────────────────────────────
 
   _skillType(skillId) {
+    // 1. Try skill definition — check every plausible field name
     const def = this._skills.find(s => s.id === skillId);
-    if (!def) return 'proficiency';
-    const t = (def.type ?? def.subType ?? def.skillType ?? '').toUpperCase();
-    if (t.includes('BOOL') || t === 'BINARY') return 'boolean';
-    if (t.includes('TEXT') || t.includes('ENUM') || t.includes('STRING')) return 'text';
+    if (def) {
+      const raw = String(
+        def.type ?? def.subType ?? def.skillType ?? def.dataType ?? def.valueType ?? ''
+      ).toUpperCase();
+      if (raw.includes('BOOL') || raw === 'BINARY')                         return 'boolean';
+      if (raw.includes('ENUM') || raw.includes('TEXT') || raw.includes('STRING')) return 'text';
+      if (raw.includes('PROFICIENCY') || raw.includes('NUMER') || raw === 'NUMBER') return 'proficiency';
+    }
+    // 2. Fallback: look for this skill in any loaded profile and use _parseSkillEntry,
+    //    which is proven to work for display. This handles orgs where skill definitions
+    //    don't carry a usable type field.
+    for (const profile of this._skillProfiles) {
+      const entries = profile.activeSkills ?? profile.skills ?? [];
+      const found   = entries.find(s => (s.skillId ?? s.skillDefinitionId) === skillId);
+      if (found) {
+        const { isBoolean, isText } = this._parseSkillEntry(found);
+        if (isBoolean) return 'boolean';
+        if (isText)    return 'text';
+        return 'proficiency';
+      }
+    }
     return 'proficiency';
   }
 
+  // Mirror _parseSkillEntry exactly — the only reliable source of truth for entry type
+  // is which value field the API populated (undefined = absent, null = present but empty).
   _skillEntryType(entry) {
-    if (entry.booleanValue !== undefined && entry.booleanValue !== null) return 'boolean';
-    if (entry.textValue    !== undefined && entry.textValue    !== null) return 'text';
+    if (entry.booleanValue !== undefined) return 'boolean';
+    if (entry.textValue    !== undefined) return 'text';
     return 'proficiency';
   }
 
@@ -2079,11 +2103,6 @@ class SupervisorSkillingWidget extends LitElement {
     return this._skills.find(s => s.id === skillId)?.name ?? skillId ?? '—';
   }
 
-  _skillType(skillId) {
-    const def = this._skills.find(s => s.id === skillId);
-    return def?.type ?? def?.skillType ?? 'PROFICIENCY';
-  }
-
   // Returns { isBoolean, isText, numericValue, textValue } from an activeSkills entry.
   // API shape: { skillId, proficiencyValue } | { skillId, booleanValue } | { skillId, textValue }
   _parseSkillEntry(s) {
@@ -2242,7 +2261,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.8.1</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.8.2</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
