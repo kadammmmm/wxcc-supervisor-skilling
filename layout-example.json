@@ -16,7 +16,7 @@
       "widgets": {
         "skilling": {
           "comp": "supervisor-skilling-widget",
-          "script": "https://kadammmmm.github.io/wxcc-supervisor-skilling/index.js",
+          "script": "https://kadammmmm.github.io/wxcc-supervisor-skilling/index.js?v=1.5.0",
           "properties": {
             "style": "width:100%;height:100%;overflow:hidden"
           }
