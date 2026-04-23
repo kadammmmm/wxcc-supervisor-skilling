@@ -758,22 +758,53 @@ class SupervisorSkillingWidget extends LitElement {
       position: sticky;
       left: 0;
       z-index: 3;
+      width: 170px;
       min-width: 170px;
+      max-width: 170px;
       border-right: 2px solid #e5e7eb;
     }
 
     .matrix-table th.mh-profile {
+      position: sticky;
+      left: 170px;
+      z-index: 3;
       min-width: 150px;
       border-right: 2px solid #e5e7eb;
     }
 
     .matrix-table th.mh-skill {
-      min-width: 72px;
-      max-width: 110px;
+      min-width: 88px;
+      max-width: 120px;
       text-align: center;
+      border-right: 1px solid #f1f5f9;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.12s, color 0.12s;
+      vertical-align: bottom;
+      padding-bottom: 7px;
+    }
+
+    .matrix-table th.mh-skill:hover { background: #EDE9FE; color: #5B21B6; }
+    .matrix-table th.mh-skill.mh-sorted { background: #EDE9FE; color: #5B21B6; }
+    .matrix-table th.mh-skill.mh-sorted .mh-skill-count { color: #7C3AED; }
+
+    .mh-skill-name {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
       overflow: hidden;
       text-overflow: ellipsis;
-      border-right: 1px solid #f1f5f9;
+      white-space: nowrap;
+    }
+
+    .mh-skill-count {
+      font-size: 9px;
+      font-weight: 500;
+      color: #9ca3af;
+      text-transform: none;
+      letter-spacing: 0;
+      margin-top: 2px;
     }
 
     .matrix-table tbody tr {
@@ -782,6 +813,8 @@ class SupervisorSkillingWidget extends LitElement {
     }
 
     .matrix-table tbody tr:hover { background: #faf5ff; }
+    .matrix-table tbody tr.matrix-row-none { background: #FFFBEB; }
+    .matrix-table tbody tr.matrix-row-none:hover { background: #FEF3C7; }
 
     .matrix-table td {
       padding: 8px 10px;
@@ -792,21 +825,78 @@ class SupervisorSkillingWidget extends LitElement {
     .matrix-table td.mc-agent {
       position: sticky;
       left: 0;
-      background: inherit;
+      background: #fff;
+      z-index: 1;
+      width: 170px;
+      min-width: 170px;
+      max-width: 170px;
+      border-right: 2px solid #e5e7eb;
+    }
+
+    .matrix-table td.mc-profile {
+      position: sticky;
+      left: 170px;
+      background: #fff;
       z-index: 1;
       border-right: 2px solid #e5e7eb;
     }
 
-    .matrix-table tbody tr:hover td.mc-agent { background: #faf5ff; }
+    .matrix-table tbody tr:hover td.mc-agent,
+    .matrix-table tbody tr:hover td.mc-profile { background: #faf5ff; }
 
-    .matrix-table td.mc-profile {
-      border-right: 2px solid #e5e7eb;
-    }
+    .matrix-table tbody tr.matrix-row-none td.mc-agent,
+    .matrix-table tbody tr.matrix-row-none td.mc-profile { background: #FFFBEB; }
+
+    .matrix-table tbody tr.matrix-row-none:hover td.mc-agent,
+    .matrix-table tbody tr.matrix-row-none:hover td.mc-profile { background: #FEF3C7; }
 
     .matrix-table td.mc-skill {
       text-align: center;
       border-right: 1px solid #f1f5f9;
       padding: 6px 4px;
+    }
+
+    /* ── Summary row ── */
+    .matrix-table tfoot tr td {
+      position: sticky;
+      bottom: 0;
+      background: #f8fafc;
+      border-top: 2px solid #e5e7eb;
+      font-size: 11px;
+      font-weight: 600;
+      color: #374151;
+      z-index: 1;
+    }
+
+    .matrix-table tfoot tr td.mc-agent {
+      z-index: 2;
+      color: #6b7280;
+      font-style: italic;
+      font-size: 11px;
+    }
+
+    .matrix-table tfoot tr td.mc-profile {
+      z-index: 2;
+    }
+
+    .mx-avg {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .mx-avg-high { background: #DCFCE7; color: #166534; }
+    .mx-avg-mid  { background: #FEF9C3; color: #854D0E; }
+    .mx-avg-low  { background: #FEE2E2; color: #991B1B; }
+
+    .mx-bool-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: #16a34a;
     }
 
     .mx-empty { color: #d1d5db; font-size: 14px; }
@@ -897,6 +987,8 @@ class SupervisorSkillingWidget extends LitElement {
     _savingAgents:    { state: true },
     _apiBaseUrl:      { state: true },
     _viewMode:        { state: true },
+    _matrixSortSkill: { state: true },
+    _matrixSortDir:   { state: true },
     _coverageGaps:    { state: true },
     _gapsDismissed:   { state: true },
   };
@@ -927,6 +1019,8 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingAgents   = new Set();
     this._apiBaseUrl     = 'https://api.wxcc-us1.cisco.com';
     this._viewMode       = 'table';
+    this._matrixSortSkill = null;
+    this._matrixSortDir   = 'desc';
     this._coverageGaps   = [];
     this._gapsDismissed  = false;
     this._sdkLogger      = null;
@@ -946,7 +1040,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.6.0 — initSDK start');
+    console.log('[skilling] v1.7.0 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1469,7 +1563,46 @@ class SupervisorSkillingWidget extends LitElement {
       this._skillName(a).localeCompare(this._skillName(b))
     );
 
-    return { agents, skillIds, agentSkillMaps };
+    // Per-skill: agent count + summary stats for the footer row
+    const skillCounts  = new Map();
+    const skillSummary = new Map();
+    for (const id of skillIds) {
+      let agentCount = 0, profSum = 0, profCount = 0, boolCount = 0, isBoolean = false;
+      for (const map of agentSkillMaps.values()) {
+        const entry = map.get(id);
+        if (!entry) continue;
+        agentCount++;
+        if (entry.isBoolean) { isBoolean = true; boolCount++; }
+        else if (!entry.isText && entry.numericValue != null) { profSum += entry.numericValue; profCount++; }
+      }
+      skillCounts.set(id, agentCount);
+      skillSummary.set(id, {
+        avg:        profCount > 0 ? (profSum / profCount).toFixed(1) : null,
+        profCount,
+        boolCount,
+        agentCount,
+        isBoolean,
+      });
+    }
+
+    // Sort agents by selected skill column (agents missing the skill sink to bottom)
+    let sortedAgents = [...agents];
+    if (this._matrixSortSkill && skillIdSet.has(this._matrixSortSkill)) {
+      const sid  = this._matrixSortSkill;
+      const desc = this._matrixSortDir !== 'asc';
+      sortedAgents.sort((a, b) => {
+        const ea = agentSkillMaps.get(a.id)?.get(sid);
+        const eb = agentSkillMaps.get(b.id)?.get(sid);
+        if (!ea && !eb) return 0;
+        if (!ea) return 1;
+        if (!eb) return -1;
+        const va = ea.numericValue ?? (ea.isBoolean ? 11 : 0);
+        const vb = eb.numericValue ?? (eb.isBoolean ? 11 : 0);
+        return desc ? vb - va : va - vb;
+      });
+    }
+
+    return { agents: sortedAgents, skillIds, agentSkillMaps, skillCounts, skillSummary };
   }
 
   _renderMatrixCell(entry) {
@@ -1506,6 +1639,15 @@ class SupervisorSkillingWidget extends LitElement {
     this._directSkills = { ...this._directSkills, [skillId]: Number(val) };
   }
 
+  _onMatrixSort(skillId) {
+    if (this._matrixSortSkill === skillId) {
+      this._matrixSortDir = this._matrixSortDir === 'desc' ? 'asc' : 'desc';
+    } else {
+      this._matrixSortSkill = skillId;
+      this._matrixSortDir   = 'desc';
+    }
+  }
+
   // ─── Render ──────────────────────────────────────────────────────────────
 
   render() {
@@ -1530,7 +1672,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.6.0</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.0</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
@@ -1648,7 +1790,7 @@ class SupervisorSkillingWidget extends LitElement {
         </div>`;
     }
 
-    const { skillIds, agentSkillMaps } = this._buildMatrix();
+    const { skillIds, agentSkillMaps, skillCounts, skillSummary } = this._buildMatrix();
 
     if (!skillIds.length) {
       return html`
@@ -1666,11 +1808,17 @@ class SupervisorSkillingWidget extends LitElement {
             <tr>
               <th class="mh-agent">Agent</th>
               <th class="mh-profile">Skill Profile</th>
-              ${skillIds.map(id => html`
-                <th class="mh-skill" title="${this._skillName(id)}">
-                  ${this._skillName(id)}
-                </th>
-              `)}
+              ${skillIds.map(id => {
+                const count    = skillCounts.get(id) ?? 0;
+                const isSorted = this._matrixSortSkill === id;
+                const icon     = isSorted ? (this._matrixSortDir === 'desc' ? ' ↓' : ' ↑') : '';
+                return html`
+                  <th class="mh-skill ${isSorted ? 'mh-sorted' : ''}"
+                      @click=${() => this._onMatrixSort(id)}>
+                    <div class="mh-skill-name">${this._skillName(id)}${icon}</div>
+                    <div class="mh-skill-count">${count} agent${count !== 1 ? 's' : ''}</div>
+                  </th>`;
+              })}
             </tr>
           </thead>
           <tbody>
@@ -1678,7 +1826,7 @@ class SupervisorSkillingWidget extends LitElement {
               const skillMap  = agentSkillMaps.get(agent.id) ?? new Map();
               const profileId = agent.skillProfileId;
               return html`
-                <tr>
+                <tr class="${!profileId ? 'matrix-row-none' : ''}">
                   <td class="mc-agent">
                     <div class="agent-name">${this._agentName(agent)}</div>
                     <div class="agent-email">${agent.email ?? ''}</div>
@@ -1697,6 +1845,28 @@ class SupervisorSkillingWidget extends LitElement {
               `;
             })}
           </tbody>
+          <tfoot>
+            <tr>
+              <td class="mc-agent">Team avg</td>
+              <td class="mc-profile"></td>
+              ${skillIds.map(id => {
+                const { avg, boolCount, agentCount, isBoolean } = skillSummary.get(id);
+                if (isBoolean) {
+                  return html`<td class="mc-skill">
+                    <span class="mx-bool-count">${boolCount}/${agentCount}</span>
+                  </td>`;
+                }
+                if (avg !== null) {
+                  const n   = parseFloat(avg);
+                  const cls = n >= 7 ? 'high' : n >= 4 ? 'mid' : 'low';
+                  return html`<td class="mc-skill">
+                    <span class="mx-avg mx-avg-${cls}">${avg}</span>
+                  </td>`;
+                }
+                return html`<td class="mc-skill"><span class="mx-empty">—</span></td>`;
+              })}
+            </tr>
+          </tfoot>
         </table>
       </div>
       <div class="matrix-legend">
@@ -1706,6 +1876,9 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="legend-item"><span class="mx-lvl mx-lvl-low"  style="width:20px;height:20px;font-size:10px">1+</span> Low (1–3)</span>
         <span class="legend-item"><span class="mx-bool" style="width:20px;height:20px;font-size:11px">✓</span> Boolean on</span>
         <span class="legend-item"><span class="mx-empty">—</span> Not in profile</span>
+        <span class="legend-item" style="color:#92400E;background:#FFFBEB;padding:2px 6px;border-radius:4px">amber row = no profile assigned</span>
+        <div class="spacer"></div>
+        <span style="color:#9ca3af;font-size:10px">Click any skill column to sort ↓↑</span>
       </div>
     `;
   }
