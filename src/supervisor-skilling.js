@@ -1108,7 +1108,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.7.1 — initSDK start');
+    console.log('[skilling] v1.7.2 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1412,7 +1412,7 @@ class SupervisorSkillingWidget extends LitElement {
         raw = await this._apiGet(`/organization/${this._orgId}/v2/agent/${agentId}`);
       } catch (e) {
         if (e.message.includes('404')) {
-          raw = await this._apiGet(`/organization/${this._orgId}/v2/user/${agentId}`);
+          raw = await this._apiGet(`/organization/${this._orgId}/user/${agentId}`);
         } else throw e;
       }
       const curr = raw.data ?? raw;
@@ -1427,7 +1427,7 @@ class SupervisorSkillingWidget extends LitElement {
         result = await this._apiPut(`/organization/${this._orgId}/v2/agent/${agentId}`, payload);
       } catch (e) {
         if (e.message.includes('404')) {
-          result = await this._apiPut(`/organization/${this._orgId}/v2/user/${agentId}`, payload);
+          result = await this._apiPut(`/organization/${this._orgId}/user/${agentId}`, payload);
         } else throw e;
       }
       const updated = result.data ?? result;
@@ -1747,7 +1747,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.1</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.7.2</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
