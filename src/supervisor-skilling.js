@@ -639,6 +639,58 @@ class SupervisorSkillingWidget extends LitElement {
       to   { opacity: 1; transform: translateX(0); }
     }
 
+    /* ── Coverage gap banner ── */
+    .coverage-banner {
+      background: #FFFBEB;
+      border-bottom: 2px solid #FDE68A;
+      padding: 10px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .coverage-banner-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+    .coverage-banner-body { flex: 1; }
+
+    .coverage-banner-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #92400E;
+      margin-bottom: 5px;
+    }
+
+    .coverage-gap-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .coverage-gap-pill {
+      background: #FEF3C7;
+      color: #78350F;
+      border: 1px solid #FDE68A;
+      border-radius: 12px;
+      padding: 2px 9px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .coverage-dismiss {
+      background: none;
+      border: none;
+      color: #92400E;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 4px;
+      opacity: 0.55;
+      flex-shrink: 0;
+      border-radius: 4px;
+    }
+    .coverage-dismiss:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+
     /* ── View toggle ── */
     .view-toggle {
       display: flex;
@@ -845,6 +897,8 @@ class SupervisorSkillingWidget extends LitElement {
     _savingAgents:    { state: true },
     _apiBaseUrl:      { state: true },
     _viewMode:        { state: true },
+    _coverageGaps:    { state: true },
+    _gapsDismissed:   { state: true },
   };
 
   // ─── Constructor ─────────────────────────────────────────────────────────
@@ -873,6 +927,8 @@ class SupervisorSkillingWidget extends LitElement {
     this._savingAgents   = new Set();
     this._apiBaseUrl     = 'https://api.wxcc-us1.cisco.com';
     this._viewMode       = 'table';
+    this._coverageGaps   = [];
+    this._gapsDismissed  = false;
     this._sdkLogger      = null;
     this._toastTimer     = null;
   }
@@ -890,7 +946,7 @@ class SupervisorSkillingWidget extends LitElement {
     this._loading    = true;
     this._loadingMsg = 'Connecting to Webex Contact Center…';
     this._error      = null;
-    console.log('[skilling] v1.5.0 — initSDK start');
+    console.log('[skilling] v1.6.0 — initSDK start');
     try {
       await Desktop.config.init({
         widgetName:     'supervisor-skilling-widget',
@@ -1067,6 +1123,8 @@ class SupervisorSkillingWidget extends LitElement {
       ]);
       this._loadingMsg = 'Loading agents…';
       await this._fetchAgents();
+      this._loadingMsg = 'Checking skill coverage…';
+      await this._fetchAgentStats();
       this._toast('Data loaded successfully', 'success');
     } catch (err) {
       this._error = err.message;
@@ -1126,6 +1184,58 @@ class SupervisorSkillingWidget extends LitElement {
         '| skillProfile:', sample.skillProfile,
         '| activeSkillProfileId:', sample.activeSkillProfileId);
     }
+  }
+
+  async _fetchAgentStats() {
+    try {
+      const json = await this._apiGet('/v1/agents/statistics', { to: '', from: '' });
+      const records = Array.isArray(json) ? json : (json.data ?? json.agentStats ?? json.items ?? []);
+      if (records.length > 0) {
+        console.log('[skilling] agent-stats sample record keys:', Object.keys(records[0]));
+        console.log('[skilling] agent-stats sample state field:',
+          records[0].currentState ?? records[0].state ?? records[0].agentState ?? records[0].status ?? '(unknown)');
+      }
+      this._computeCoverageGaps(records);
+    } catch (err) {
+      console.warn('[skilling] agent-stats unavailable:', err.message);
+      this._coverageGaps = [];
+    }
+  }
+
+  _computeCoverageGaps(statsRecords) {
+    // Identify agents currently in Available state
+    const availableIds = new Set();
+    for (const r of statsRecords) {
+      const state = r.currentState ?? r.state ?? r.agentState ?? r.status ?? '';
+      const id    = r.agentId ?? r.id ?? r.userId ?? '';
+      if (id && /available/i.test(String(state))) availableIds.add(id);
+    }
+
+    // Skills covered by at least one available agent
+    const covered = new Set();
+    for (const agent of this._agents) {
+      if (!availableIds.has(agent.id)) continue;
+      for (const s of this._profileSkills(agent.skillProfileId)) {
+        covered.add(this._skillDefId(s));
+      }
+    }
+
+    // All skills that appear in any agent's profile
+    const inUse = new Set();
+    for (const agent of this._agents) {
+      for (const s of this._profileSkills(agent.skillProfileId)) {
+        inUse.add(this._skillDefId(s));
+      }
+    }
+
+    this._coverageGaps = [...inUse]
+      .filter(id => !covered.has(id))
+      .map(id => this._skillName(id))
+      .sort();
+
+    this._gapsDismissed = false;
+    console.log('[skilling] coverage gaps:', this._coverageGaps.length,
+      '| available agents matched:', availableIds.size);
   }
 
   // ─── Updates ─────────────────────────────────────────────────────────────
@@ -1420,7 +1530,7 @@ class SupervisorSkillingWidget extends LitElement {
         <span class="header-icon">🎯</span>
         <div style="flex:1">
           <div class="header-title">Supervisor Skilling Tool</div>
-          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.5.0</div>
+          <div class="header-subtitle">Manage agent skill profiles in real-time &nbsp;·&nbsp; v1.6.0</div>
         </div>
         ${selected ? html`<span class="stats-pill">${selected} selected</span>` : ''}
         <span class="stats-pill">${total} agent${total !== 1 ? 's' : ''}</span>
@@ -1468,6 +1578,7 @@ class SupervisorSkillingWidget extends LitElement {
 
     return html`
       ${this._renderControls()}
+      ${this._renderCoverageWarning()}
       ${anySelected && this._viewMode === 'table' ? this._renderBulkBar() : ''}
       ${this._viewMode === 'matrix' ? this._renderMatrix(agents) : html`
       <div class="table-container">
@@ -1503,6 +1614,27 @@ class SupervisorSkillingWidget extends LitElement {
               </table>`
         }
       </div>`}
+    `;
+  }
+
+  _renderCoverageWarning() {
+    if (!this._coverageGaps.length || this._gapsDismissed) return '';
+    const count = this._coverageGaps.length;
+    return html`
+      <div class="coverage-banner">
+        <span class="coverage-banner-icon">⚠️</span>
+        <div class="coverage-banner-body">
+          <div class="coverage-banner-title">
+            ${count} skill${count !== 1 ? 's have' : ' has'} zero available agent coverage right now
+          </div>
+          <div class="coverage-gap-pills">
+            ${this._coverageGaps.map(name => html`
+              <span class="coverage-gap-pill">No available agents · ${name}</span>
+            `)}
+          </div>
+        </div>
+        <button class="coverage-dismiss" title="Dismiss" @click=${() => (this._gapsDismissed = true)}>✕</button>
+      </div>
     `;
   }
 
